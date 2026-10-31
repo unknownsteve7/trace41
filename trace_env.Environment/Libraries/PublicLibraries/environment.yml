@@ -1,0 +1,4 @@
+dependencies:
+  - pip:
+      - requests==2.34.2
+      - gtfs-realtime-bindings==3.0.0
