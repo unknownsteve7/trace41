@@ -1,0 +1,54 @@
+# ==============================================================================
+# TRACE — .gitignore
+# ==============================================================================
+
+# ── Secrets (NEVER commit) ────────────────────────────────────────────────────
+.env
+*.env
+!.env.example
+
+# ── All data (too large / raw / sensitive) ────────────────────────────────────
+data/raw/
+data/bronze/
+data/silver/
+data/gold/
+data/static_gtfs/
+data/backups/
+
+# Allow .gitkeep placeholders and tiny samples
+!data/**/.gitkeep
+!data/sample/
+!data/sample/**
+
+# Large GTFS files specifically
+*.pb
+*.parquet
+*.zip
+*.tar.gz
+stop_times.txt
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+logs/
+*.log
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# ── IDE / OS ──────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
