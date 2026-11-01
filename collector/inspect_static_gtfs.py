@@ -44,10 +44,22 @@ log = logging.getLogger("inspect_gtfs")
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
+def _resolve(filename: str) -> Path | None:
+    """Try both .txt and .csv variants."""
+    for ext in ["", ".csv", ".txt"]:
+        # filename may already have extension
+        stem = filename.replace(".txt", "").replace(".csv", "")
+        for candidate in [stem + ext, filename]:
+            p = GTFS_DIR / candidate
+            if p.exists():
+                return p
+    return None
+
+
 def read_csv(filename: str) -> list[dict]:
-    p = GTFS_DIR / filename
-    if not p.exists():
-        log.warning(f"  {filename} NOT FOUND in {GTFS_DIR}")
+    p = _resolve(filename)
+    if p is None:
+        log.warning(f"  {filename} (or .csv/.txt) NOT FOUND in {GTFS_DIR}")
         return []
     with open(p, encoding="utf-8-sig", newline="") as f:
         return list(csv.DictReader(f))
@@ -55,8 +67,8 @@ def read_csv(filename: str) -> list[dict]:
 
 def count_rows_fast(filename: str) -> tuple[int, float]:
     """Returns (row_count, file_size_MB). Counts lines, not full parse."""
-    p = GTFS_DIR / filename
-    if not p.exists():
+    p = _resolve(filename)
+    if p is None:
         return 0, 0.0
     size_mb = p.stat().st_size / 1_048_576
     with open(p, "rb") as f:
@@ -66,15 +78,15 @@ def count_rows_fast(filename: str) -> tuple[int, float]:
 
 def check_24plus_times(filename: str, col: str = "arrival_time") -> int:
     """Count rows in stop_times where arrival_time >= 24:00:00"""
-    p = GTFS_DIR / filename
-    if not p.exists():
+    p = _resolve(filename)
+    if p is None:
         return 0
     count = 0
     with open(p, encoding="utf-8-sig", newline="") as f:
         reader = csv.DictReader(f)
         for row in reader:
             t = row.get(col, "")
-            if t and int(t.split(":")[0]) >= 24:
+            if t and t.strip() and int(t.split(":")[0]) >= 24:
                 count += 1
     return count
 
@@ -119,24 +131,27 @@ def check_calendar():
 def check_counts():
     print("\n── 3. ENTITY COUNTS ─────────────────────────────")
     for fname, label in [
-        ("routes.txt",    "routes"),
-        ("trips.txt",     "trips"),
-        ("stops.txt",     "stops"),
-        ("shapes.txt",    "shape points"),
+        ("routes",    "routes"),
+        ("trips",     "trips"),
+        ("stops",     "stops"),
+        ("shapes",    "shape points"),
     ]:
         n, mb = count_rows_fast(fname)
-        print(f"  {label:<15}: {n:>8,}  ({mb:.1f} MB)")
+        if n:
+            print(f"  {label:<15}: {n:>8,}  ({mb:.1f} MB)")
+        else:
+            print(f"  {label:<15}: NOT FOUND")
 
     # stop_times separately — may be huge
     print("\n── 4. STOP_TIMES ────────────────────────────────")
-    n, mb = count_rows_fast("stop_times.txt")
+    n, mb = count_rows_fast("stop_times")
     print(f"  Total rows     : {n:>10,}")
     print(f"  File size      : {mb:.1f} MB")
     if mb > 90:
-        print(f"  ⚠️  OVER 90 MB — confirm .gitignore covers stop_times.txt")
-    
+        print(f"  WARNING: OVER 90 MB — confirm .gitignore covers stop_times.csv/txt")
+
     print("  Counting 24:00+ arrival times (may take ~30s)...")
-    n24 = check_24plus_times("stop_times.txt", "arrival_time")
+    n24 = check_24plus_times("stop_times", "arrival_time")
     print(f"  Rows with hour >= 24 (need normalization): {n24:,}")
 
 
@@ -144,13 +159,18 @@ def check_live_match():
     print("\n── 5. LIVE TRIP_ID / ROUTE_ID MATCH TEST ────────")
     print("  Fetching one live poll from OTD...")
 
-    headers = {"key": API_KEY} if API_KEY else {}
+    if not API_KEY:
+        print("  WARNING: OTD_API_KEY not set in .env — skipping live match test")
+        print("  Add key to .env and re-run to get match %.")
+        return
+
+    headers = {"key": API_KEY}
     try:
         resp = requests.get(FEED_URL, headers=headers, timeout=20)
         resp.raise_for_status()
     except Exception as e:
-        print(f"  ⚠️  Could not fetch live feed: {e}")
-        print("  Skipping match test — run again when network is available.")
+        print(f"  Could not fetch live feed: {e}")
+        print("  Skipping match test — check API key and network.")
         return
 
     feed = gtfs_realtime_pb2.FeedMessage()
@@ -171,8 +191,8 @@ def check_live_match():
     print(f"  Unique route_ids in feed   : {len(live_route_ids)}")
 
     # Load static sets
-    trips_rows  = read_csv("trips.txt")
-    routes_rows = read_csv("routes.txt")
+    trips_rows  = read_csv("trips")
+    routes_rows = read_csv("routes")
     static_trip_ids  = {r.get("trip_id","")  for r in trips_rows}
     static_route_ids = {r.get("route_id","") for r in routes_rows}
 
