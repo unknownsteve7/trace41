@@ -39,8 +39,8 @@ log = logging.getLogger("two_poll_test")
 
 
 def fetch_feed(api_key: str, url: str) -> gtfs_realtime_pb2.FeedMessage:
-    headers = {"key": api_key} if api_key else {}
-    resp = requests.get(url, headers=headers, timeout=15)
+    params = {"key": api_key} if api_key else {}
+    resp = requests.get(url, params=params, timeout=15)
     resp.raise_for_status()
     feed = gtfs_realtime_pb2.FeedMessage()
     feed.ParseFromString(resp.content)
