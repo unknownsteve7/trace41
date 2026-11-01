@@ -83,9 +83,9 @@ def fetch_with_retry(url: str, api_key: str, max_retries: int = 5) -> bytes | No
     params = {"key": api_key} if api_key else {}
     for attempt in range(1, max_retries + 1):
         try:
-            resp = requests.get(url, params=params, timeout=20)
+            resp = requests.get(url, params=params, timeout=30, stream=True)
             resp.raise_for_status()
-            return resp.content
+            return b"".join(resp.iter_content(chunk_size=65536))
         except requests.exceptions.HTTPError as e:
             status = e.response.status_code if e.response is not None else "?"
             log.warning(f"HTTP {status} on attempt {attempt}/{max_retries}: {e}")
