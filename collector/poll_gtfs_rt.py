@@ -80,10 +80,10 @@ def fetch_with_retry(url: str, api_key: str, max_retries: int = 5) -> bytes | No
     Fetch raw protobuf bytes. Returns None on permanent failure after retries.
     Implements exponential backoff: 2, 4, 8, 16, 32 seconds.
     """
-    headers = {"key": api_key} if api_key else {}
+    params = {"key": api_key} if api_key else {}
     for attempt in range(1, max_retries + 1):
         try:
-            resp = requests.get(url, headers=headers, timeout=20)
+            resp = requests.get(url, params=params, timeout=20)
             resp.raise_for_status()
             return resp.content
         except requests.exceptions.HTTPError as e:

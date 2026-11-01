@@ -164,9 +164,9 @@ def check_live_match():
         print("  Add key to .env and re-run to get match %.")
         return
 
-    headers = {"key": API_KEY}
+    params = {"key": API_KEY}
     try:
-        resp = requests.get(FEED_URL, headers=headers, timeout=20)
+        resp = requests.get(FEED_URL, params=params, timeout=20)
         resp.raise_for_status()
     except Exception as e:
         print(f"  Could not fetch live feed: {e}")
