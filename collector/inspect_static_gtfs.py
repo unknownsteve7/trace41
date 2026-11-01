@@ -165,16 +165,25 @@ def check_live_match():
         return
 
     params = {"key": API_KEY}
-    try:
-        resp = requests.get(FEED_URL, params=params, timeout=20)
-        resp.raise_for_status()
-    except Exception as e:
-        print(f"  Could not fetch live feed: {e}")
+    raw_bytes = None
+    last_err = None
+    for attempt in range(1, 4):
+        try:
+            resp = requests.get(FEED_URL, params=params, timeout=30, stream=True)
+            resp.raise_for_status()
+            raw_bytes = b"".join(resp.iter_content(chunk_size=65536))
+            break
+        except Exception as e:
+            last_err = e
+            print(f"  Attempt {attempt} failed: {e} — retrying...")
+            import time as _time; _time.sleep(2)
+    if raw_bytes is None:
+        print(f"  Could not fetch live feed after 3 attempts: {last_err}")
         print("  Skipping match test — check API key and network.")
         return
 
     feed = gtfs_realtime_pb2.FeedMessage()
-    feed.ParseFromString(resp.content)
+    feed.ParseFromString(raw_bytes)
 
     live_trip_ids  = set()
     live_route_ids = set()
