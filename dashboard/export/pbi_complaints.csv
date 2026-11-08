@@ -1,0 +1,201 @@
+complaint_id,route_short_name,category,submitted_at,complaint_text,is_simulated
+e23c852d-42ea-4502-b197-8a549167619d,102ADOWN,Wrong Route,2026-11-06 12:58:00+00:00,,True
+c67844da-a702-4dbe-8b7c-03420f75cfe2,102ADOWN,No Show,2026-11-07 13:24:00+00:00,Service completely missing,True
+0f5ef0d8-5f9e-4562-9ac3-2595a2b0d404,102AUP,Late Arrival,2026-11-05 17:36:00+00:00,Always late on this route,True
+d66ff743-4f17-43e5-aed5-7a0109cad258,102AUP,Late Arrival,2026-11-08 19:56:00+00:00,Bus was 20 mins late,True
+b537dd87-d8a5-4b8c-af9b-89f985665ae4,102AUP,No Show,2026-11-08 09:55:00+00:00,Bus never came,True
+4fea9067-eb97-444c-8d58-4f66e4505b7a,102AUP,Late Arrival,2026-11-07 13:23:00+00:00,Bus was 20 mins late,True
+d316e46c-7d08-4594-850f-9aea09682cab,102DOWN,No Show,2026-11-07 10:41:00+00:00,,True
+8053eac1-cb64-4b06-889a-002be013040d,102DOWN,No Show,2026-11-07 08:43:00+00:00,Bus never came,True
+c6ac3529-5026-457e-bedb-3646dcb1e15d,102DOWN,No Show,2026-11-06 07:19:00+00:00,,True
+8b48e939-8c27-497e-8fc4-6f0231ee8210,102DOWN,Overcrowding,2026-11-07 19:09:00+00:00,,True
+406dc7d0-f755-4518-bfeb-8609ebc4bc90,102LSTLDOWN,Overcrowding,2026-11-07 07:03:00+00:00,,True
+719b08cc-2c07-473e-9f78-25c93f71d7d9,102LSTLDOWN,Late Arrival,2026-11-06 08:53:00+00:00,,True
+f4ffa441-2dcf-4646-91d2-2d621a0f1ac4,102LSTLDOWN,Late Arrival,2026-11-05 17:28:00+00:00,Always late on this route,True
+e0d732d1-7234-4ebb-8fe9-2c52c28fceef,102LSTLDOWN,No Show,2026-11-07 18:48:00+00:00,,True
+15b5b09c-1237-4336-8876-93a9e5e226cb,102LSTLDOWN,Wrong Route,2026-11-05 13:24:00+00:00,,True
+25e30c38-fdb9-4219-9ceb-22a8efbe0c83,102LSTLDOWN,No Show,2026-11-05 18:14:00+00:00,,True
+adf0d1c2-39c8-406d-bec2-b8324d9a9bee,102LSTLUP,Overcrowding,2026-11-08 20:06:00+00:00,,True
+fbc9a53d-b403-4f8c-b577-ec304ce0d425,102LSTLUP,Late Arrival,2026-11-06 13:36:00+00:00,Bus was 20 mins late,True
+71404011-530c-4690-937d-254b266b5371,102LSTLUP,Wrong Route,2026-11-05 18:56:00+00:00,,True
+7de19267-eb97-4898-bd9a-d415a1e17878,102LSTLUP,Late Arrival,2026-11-07 09:02:00+00:00,Bus was 20 mins late,True
+0cca5e19-9980-48b6-a5dc-d763832eb4a5,102STLDOWN,Late Arrival,2026-11-06 12:56:00+00:00,Bus was 20 mins late,True
+5dfd9abb-4568-4bad-8b6b-3920bfd7c194,102STLDOWN,Wrong Route,2026-11-08 12:05:00+00:00,,True
+1be18301-698b-44ad-9a23-da17b7fc7e1c,102STLDOWN,No Show,2026-11-06 10:32:00+00:00,,True
+0428ce27-57d2-4c45-aa9d-aadec511b8c3,102STLDOWN,Overcrowding,2026-11-07 18:06:00+00:00,Need more buses,True
+d34f8f3d-8375-4554-9225-e5ef8dd6ac66,102STLDOWN,Wrong Route,2026-11-08 18:10:00+00:00,,True
+4404a8ec-fe9d-4c50-b9e6-8c0c9a00540e,102STLUP,Late Arrival,2026-11-06 19:55:00+00:00,Bus was 20 mins late,True
+9f192e0f-cd6f-4b4e-9be0-2134ad5ee642,102STLUP,Overcrowding,2026-11-05 17:58:00+00:00,Too packed to board,True
+ef24169d-18ac-4121-bb15-3e83777f2f76,102STLUP,Driver Behavior,2026-11-08 18:42:00+00:00,,True
+aae054f4-d6d8-4ade-9d1b-9365b23be908,102UP,Late Arrival,2026-11-06 10:13:00+00:00,,True
+82baaff4-027d-41cf-ac16-bb5e5a14ea26,102UP,Overcrowding,2026-11-05 17:49:00+00:00,"Couldn't get on, too full",True
+1bc8a7c2-0312-457e-a97e-46efdfc37466,102UP,Late Arrival,2026-11-05 19:42:00+00:00,Always late on this route,True
+ce37bf0f-0425-4550-990d-2a19bdad9ea3,102UP,Late Arrival,2026-11-07 09:04:00+00:00,,True
+aeabe0f6-94c1-4a5d-91f7-9ef8a1ced211,103LSTLDOWN,Overcrowding,2026-11-07 20:51:00+00:00,,True
+46961c7e-6dcc-466f-bcda-3df1a57da7db,103LSTLDOWN,Overcrowding,2026-11-05 19:32:00+00:00,Need more buses,True
+5016713f-eff6-46af-9bf8-bdde56f48ebc,103LSTLDOWN,Overcrowding,2026-11-07 09:56:00+00:00,Need more buses,True
+12fcb388-6393-4a49-abbd-3d68f3d0a50e,103LSTLDOWN,Late Arrival,2026-11-07 08:26:00+00:00,Always late on this route,True
+af3e310a-6cf5-4e1b-a2e4-7c0b1e833e83,103LSTLDOWN,Late Arrival,2026-11-05 09:00:00+00:00,,True
+17a4ffc3-9102-4812-b469-d9ff7940422c,103LSTLUP,Driver Behavior,2026-11-05 08:27:00+00:00,,True
+880bff10-77f2-465b-8975-18d8763d8522,103LSTLUP,Wrong Route,2026-11-06 08:35:00+00:00,Driver took wrong road,True
+2be464b7-1baa-4b62-bee6-479154c5657b,103LSTLUP,Late Arrival,2026-11-06 20:02:00+00:00,Always late on this route,True
+fcef743d-4453-4a6c-aee0-40eac32bf653,106LSTLDOWN,No Show,2026-11-07 07:14:00+00:00,"Waited 45 mins, no bus",True
+b1d03a77-c6e4-476c-bc25-76c02018e3a4,106LSTLDOWN,Overcrowding,2026-11-06 17:06:00+00:00,Too packed to board,True
+ab78d535-c666-4fb1-8616-b9706af68d09,106LSTLDOWN,Driver Behavior,2026-11-07 19:51:00+00:00,,True
+91740965-f0b4-4141-98ee-15f080f4cd58,106LSTLDOWN,Late Arrival,2026-11-06 10:52:00+00:00,Very delayed today,True
+88dc2274-e0dc-4638-be12-1e5e097a0e83,106LSTLUP,Late Arrival,2026-11-06 20:29:00+00:00,Bus was 20 mins late,True
+e583e5a1-a97c-44bc-836a-4be9f2b6c28f,106LSTLUP,Late Arrival,2026-11-05 19:31:00+00:00,Bus was 20 mins late,True
+d02ac3b0-d8f9-4c80-bbcf-0ec176b0eb7c,106LSTLUP,No Show,2026-11-07 18:45:00+00:00,,True
+e95b324a-5cd0-45a7-a386-b5d69cd21cc9,106LSTLUP,Late Arrival,2026-11-05 07:35:00+00:00,Very delayed today,True
+a7e92c69-987d-4024-a6f4-75448a204cb7,107STLDOWN,Late Arrival,2026-11-06 08:08:00+00:00,Very delayed today,True
+a173012c-8bf7-41e7-866e-70f3407ed5c1,107STLDOWN,Overcrowding,2026-11-08 17:57:00+00:00,,True
+a2acb0f5-6ca6-4a3e-b86c-a92bd28e1480,107STLDOWN,Late Arrival,2026-11-05 13:40:00+00:00,Always late on this route,True
+8a76d274-db21-457d-9d6d-fe7bbb7da79e,107STLDOWN,Driver Behavior,2026-11-07 18:07:00+00:00,Driver was rude,True
+490b0db2-0202-4ba5-96dc-2b81e86bb9aa,107STLUP,No Show,2026-11-05 08:09:00+00:00,,True
+f4be0063-9566-4fa9-971a-cb04cfbc1de0,107STLUP,Late Arrival,2026-11-05 20:10:00+00:00,Always late on this route,True
+416a772e-c56e-42c2-98a4-f1542198370a,107UP,Late Arrival,2026-11-06 17:29:00+00:00,Very delayed today,True
+1856e233-a638-4ff1-a60a-b1c94cfd7a9e,107UP,Overcrowding,2026-11-05 20:38:00+00:00,Too packed to board,True
+617d6fc4-86cc-4f17-8681-b94319127634,107UP,No Show,2026-11-06 20:44:00+00:00,,True
+f40d655e-ae85-496a-b6d7-fc0e41f4f89d,108ADOWN,Driver Behavior,2026-11-07 17:38:00+00:00,Rash driving,True
+ccae21d0-7991-4794-a115-d8bee33e277e,108ADOWN,Driver Behavior,2026-11-07 17:10:00+00:00,Rash driving,True
+a93c1f7f-59bb-45ff-8019-c7ce603a6cd3,108ADOWN,Overcrowding,2026-11-07 19:08:00+00:00,,True
+55c5d03a-46d5-4fb2-91c7-815c27823f52,108ADOWN,Wrong Route,2026-11-06 17:25:00+00:00,Driver took wrong road,True
+e7ece74f-43ce-4dcd-b3f1-02d224086d06,108AUP,No Show,2026-11-05 19:47:00+00:00,Service completely missing,True
+4246c6eb-3fa5-46d7-b2fc-e323023d7e61,109ADOWN,Wrong Route,2026-11-07 12:14:00+00:00,Driver took wrong road,True
+5b76022a-0e21-4c72-8d84-d0a0ef0cc9ee,109ADOWN,Overcrowding,2026-11-06 18:05:00+00:00,Need more buses,True
+cb748fb1-281b-4f7b-9571-8e347971a296,109ADOWN,Overcrowding,2026-11-06 10:39:00+00:00,"Couldn't get on, too full",True
+13896611-4cc1-4a1e-9605-63d0a54d7394,109ADOWN,No Show,2026-11-07 13:19:00+00:00,,True
+d2f5865d-2766-4750-aac5-a588101a7487,109AUP,Late Arrival,2026-11-07 17:55:00+00:00,Very delayed today,True
+144e1bf4-4b4f-4a8e-b033-d27dfe1a126b,109AUP,Overcrowding,2026-11-08 19:27:00+00:00,,True
+9a6f504a-f6d5-4f2a-82b4-b358b0f08c44,109AUP,No Show,2026-11-06 10:26:00+00:00,"Waited 45 mins, no bus",True
+a9841e49-86ce-4153-be92-2b395b8aea06,109AUP,Overcrowding,2026-11-05 17:35:00+00:00,,True
+a16e8ece-613c-4f9a-9a52-3248e788251c,109AUP,Overcrowding,2026-11-08 08:29:00+00:00,"Couldn't get on, too full",True
+2920b9bd-fb50-4f2d-aa25-82279d19c1ba,109STLDOWN,Driver Behavior,2026-11-05 08:34:00+00:00,,True
+b01de068-e62b-44d4-9af8-b5f7b218563f,109STLDOWN,No Show,2026-11-08 17:02:00+00:00,Service completely missing,True
+444e1685-4279-45ed-9c6a-98d00283717c,109STLDOWN,Overcrowding,2026-11-05 13:04:00+00:00,Need more buses,True
+68ea8a26-ae73-4ffc-a28d-1cd0e447740a,109STLUP,Late Arrival,2026-11-08 08:09:00+00:00,Always late on this route,True
+73de8561-054c-449d-8f6a-ce277ef60825,109STLUP,Late Arrival,2026-11-05 08:24:00+00:00,Very delayed today,True
+a8479f47-9201-4435-a626-f23e6576eb94,109STLUP,Late Arrival,2026-11-08 09:51:00+00:00,Very delayed today,True
+c6f02f11-62cb-4a38-a599-6c916ee8888f,109STLUP,No Show,2026-11-08 18:42:00+00:00,"Waited 45 mins, no bus",True
+0ad91b2b-d6e7-40ec-8f23-b66a13379ed8,112ADOWN,Late Arrival,2026-11-05 18:27:00+00:00,Very delayed today,True
+d23f1500-f78f-4311-9c18-cca55ab238f2,112ADOWN,Overcrowding,2026-11-06 20:14:00+00:00,"Couldn't get on, too full",True
+2c0c5ff3-6841-40b6-a05b-69e6305c6382,112ADOWN,Late Arrival,2026-11-05 18:53:00+00:00,Bus was 20 mins late,True
+8ef052ca-f4ae-47c8-ba23-704535a619a7,112ADOWN,No Show,2026-11-07 07:07:00+00:00,Service completely missing,True
+0fd2103a-4d90-4f9d-88cf-d362b893ed06,112ADOWN,Late Arrival,2026-11-08 12:07:00+00:00,,True
+f8367493-fadc-48d1-b82b-6cad07d3cf0f,112ADOWN,Vehicle Breakdown,2026-11-08 17:19:00+00:00,"Engine problems, had to leave bus",True
+a452d10d-a85d-4341-a087-3909c777194e,112ADOWN,Overcrowding,2026-11-08 13:47:00+00:00,"Couldn't get on, too full",True
+de7ad4b0-21d8-41eb-967f-7029620f2497,112ADOWN,Vehicle Breakdown,2026-11-06 08:09:00+00:00,Bus broke down mid-route,True
+c3999ae7-b20b-4e09-8e04-3f180cc11b9a,112AUP,Late Arrival,2026-11-08 10:14:00+00:00,,True
+95c11126-a181-45bc-b78d-3095925e16dc,112AUP,Overcrowding,2026-11-07 19:20:00+00:00,Need more buses,True
+f5b07c12-7a07-4aee-8bba-ac8329ebcdcc,112AUP,Late Arrival,2026-11-07 08:46:00+00:00,Very delayed today,True
+9630a5bd-bf78-4565-8f0b-fc7e1357ff07,112AUP,Overcrowding,2026-11-06 17:35:00+00:00,Too packed to board,True
+a138a26e-d17d-4768-82a7-09439ed471d6,112STLDOWN,Vehicle Breakdown,2026-11-07 12:17:00+00:00,"Engine problems, had to leave bus",True
+816557d4-41d0-40cf-b9cd-7e01ee3e249d,112STLDOWN,Overcrowding,2026-11-08 07:08:00+00:00,Too packed to board,True
+78220785-6293-4ef9-99e0-db9e45453b53,112STLDOWN,Driver Behavior,2026-11-05 17:49:00+00:00,Rash driving,True
+2552e148-83db-45a9-a20f-49a7e4187636,112STLDOWN,Late Arrival,2026-11-08 07:33:00+00:00,,True
+fb8ebeee-f729-42ca-a388-a4b906b5e66d,112STLUP,Late Arrival,2026-11-05 18:36:00+00:00,,True
+74d18657-1c47-4114-a351-51b9e85d9180,113ADOWN,No Show,2026-11-06 19:00:00+00:00,Bus never came,True
+bae0ecb1-a40b-4e63-990f-5d0ec0746625,113ADOWN,Overcrowding,2026-11-06 08:39:00+00:00,,True
+94061b58-93ee-490c-896a-64a105fd7b66,113ADOWN,Late Arrival,2026-11-06 18:26:00+00:00,,True
+8e05070e-a05b-4740-81ce-e63b6a57cf71,113ADOWN,Late Arrival,2026-11-07 08:21:00+00:00,Always late on this route,True
+bd9b0048-1e60-4888-aacf-75a4d5e1db83,113AUP,Vehicle Breakdown,2026-11-07 07:11:00+00:00,Bus broke down mid-route,True
+9d2dacc4-f6bf-4151-b957-5bb35e8a600e,113DOWN,Late Arrival,2026-11-05 08:59:00+00:00,Always late on this route,True
+057a6601-0205-420b-82f5-20382ee8a3d9,113DOWN,Late Arrival,2026-11-08 18:59:00+00:00,Bus was 20 mins late,True
+3866c516-6d99-4c9c-a1be-d4b1de26bd0d,113DOWN,No Show,2026-11-08 20:59:00+00:00,,True
+6d593fdb-4c39-4fd6-b401-ed8c1cdeaa37,113DOWN,No Show,2026-11-06 09:19:00+00:00,,True
+2d904369-116a-4a9c-aaf8-121a8dc75f4f,113DOWN,Overcrowding,2026-11-08 10:17:00+00:00,"Couldn't get on, too full",True
+52620f77-3995-4d5a-bca1-63475dce6a84,113STLDOWN,No Show,2026-11-08 09:42:00+00:00,,True
+1a011972-ac1f-40a4-8aa2-9a0664ca4f8e,113STLDOWN,No Show,2026-11-08 09:12:00+00:00,Service completely missing,True
+bb001fb5-26ab-4419-902a-2f56d45dc299,113STLDOWN,No Show,2026-11-08 09:51:00+00:00,Bus never came,True
+540d83f1-e0d6-4059-8ccb-8b3e5b601394,113STLDOWN,Wrong Route,2026-11-06 08:17:00+00:00,Route sign incorrect,True
+c900c160-37ac-4be2-acc3-da1915b42b77,113STLDOWN,Late Arrival,2026-11-08 08:15:00+00:00,,True
+f5122d34-7946-4155-bd4a-6f6d42ff7ded,113STLDOWN,Late Arrival,2026-11-08 12:23:00+00:00,Always late on this route,True
+71f5a8d6-e93e-41a4-a379-19f43fa5f981,113STLUP,Overcrowding,2026-11-08 20:05:00+00:00,Too packed to board,True
+b9378146-5e75-4e81-b845-eedbd5fd9d48,113STLUP,No Show,2026-11-08 17:49:00+00:00,"Waited 45 mins, no bus",True
+d61f2558-22fa-446f-8e57-fe33dd458169,113STLUP,Overcrowding,2026-11-08 12:14:00+00:00,Too packed to board,True
+9f999d44-1040-4c80-9173-ae85d80c4504,113STLUP,Late Arrival,2026-11-05 18:54:00+00:00,Always late on this route,True
+eb9bd828-b7d3-4ee3-a957-c50745ba21de,113STLUP,Late Arrival,2026-11-08 18:27:00+00:00,,True
+99eb3e35-1caa-48b3-8518-69fa84b47851,113UP,No Show,2026-11-07 13:44:00+00:00,,True
+a2e0be2a-f875-4c1a-abdc-fe5c9a49c589,113UP,Late Arrival,2026-11-08 17:42:00+00:00,Very delayed today,True
+d2c962f5-5985-4029-b9b9-3792dc0e976c,113UP,No Show,2026-11-06 20:58:00+00:00,"Waited 45 mins, no bus",True
+ed00d1c4-4b94-44a6-8d77-840d4eda18fa,113UP,Late Arrival,2026-11-05 19:14:00+00:00,Bus was 20 mins late,True
+cefdf895-5f6e-48fe-a628-6061fe7c8c62,114ASTLDOWN,Overcrowding,2026-11-08 07:08:00+00:00,Too packed to board,True
+43856a3a-ef0f-441d-afd8-6aff13273921,114ASTLDOWN,Overcrowding,2026-11-06 17:14:00+00:00,,True
+851aa24f-60be-485f-aa02-fcd106c77bcc,114ASTLDOWN,Wrong Route,2026-11-08 17:47:00+00:00,,True
+df261488-3222-49dd-8eb2-0addd743fa9f,114ASTLDOWN,Wrong Route,2026-11-07 13:37:00+00:00,,True
+a4dd0297-abf1-4904-95e0-d35323799067,114ASTLDOWN,Late Arrival,2026-11-08 18:16:00+00:00,Bus was 20 mins late,True
+abbe4215-9e79-4e22-b5d6-3dcab74e1764,114ASTLUP,Late Arrival,2026-11-06 20:41:00+00:00,Very delayed today,True
+f0b9d711-8c3b-4e33-898b-7a12ec23d893,114ASTLUP,Late Arrival,2026-11-07 07:37:00+00:00,,True
+5a297ff0-6166-448e-b09f-6df5bf6dd99b,114ASTLUP,Late Arrival,2026-11-05 13:04:00+00:00,Bus was 20 mins late,True
+b92b9f81-c5b9-4682-89be-4f97fe3325d4,114ASTLUP,Vehicle Breakdown,2026-11-07 07:41:00+00:00,Bus broke down mid-route,True
+512d3efd-490b-4a6c-be77-73952e43a3a7,114BSTL-RKD-IIUP,Wrong Route,2026-11-06 08:02:00+00:00,Route sign incorrect,True
+51ce837f-ab2c-4420-9964-27f9f7f4243f,114BSTL-RKD-IIUP,Late Arrival,2026-11-08 12:28:00+00:00,Very delayed today,True
+fbfad3cf-37d8-40ad-8bd9-d024579a27be,114BSTL-RKD-IIUP,Late Arrival,2026-11-08 08:41:00+00:00,Bus was 20 mins late,True
+9018fe21-ade3-4ad8-9851-95ac648f4574,114BSTL-RKD-IIUP,Overcrowding,2026-11-07 08:48:00+00:00,Too packed to board,True
+ee3e32fe-d613-4a02-bcf0-f41001814e16,114CSTLDOWN,Late Arrival,2026-11-07 08:33:00+00:00,Always late on this route,True
+24c8da48-2883-40ee-ab45-776eaf9100cd,114CSTLDOWN,Vehicle Breakdown,2026-11-08 17:00:00+00:00,,True
+f55cd065-c120-4c35-8e45-89629bf6b534,114CSTLDOWN,Late Arrival,2026-11-06 09:42:00+00:00,Bus was 20 mins late,True
+8e039bc7-9ec2-432c-a31b-05d02b10dc6b,114CSTLDOWN,Driver Behavior,2026-11-06 08:37:00+00:00,,True
+d3630606-557f-4fa7-bf43-e6aa9b4c1b8b,114CSTLUP,Wrong Route,2026-11-06 13:00:00+00:00,,True
+e9639d94-87b3-4540-97f6-d89d391a625e,114CSTLUP,Late Arrival,2026-11-06 19:33:00+00:00,,True
+3de73898-7569-418e-acf3-44172f46c0f3,114CSTLUP,Late Arrival,2026-11-06 08:57:00+00:00,Bus was 20 mins late,True
+20cd4ed6-294b-436d-b3cb-731e45127a68,114CSTLUP,Overcrowding,2026-11-05 20:39:00+00:00,Need more buses,True
+1c15cdf3-57ef-48bb-8c0d-556f51007d89,114CSTLUP,Late Arrival,2026-11-07 19:38:00+00:00,Very delayed today,True
+cb40dd97-7b90-476e-83b0-b86509efc225,114DOWN,No Show,2026-11-05 18:45:00+00:00,"Waited 45 mins, no bus",True
+31bb4050-82fe-49f8-a785-fad900a79181,114DOWN,No Show,2026-11-07 12:55:00+00:00,"Waited 45 mins, no bus",True
+7429e8f8-093b-4b15-a393-449b027dc762,114DOWN,No Show,2026-11-05 18:27:00+00:00,,True
+21555a09-b3fb-4bd2-8104-e1cbf498a3ed,114DOWN,No Show,2026-11-07 17:15:00+00:00,,True
+68443ec0-6e2e-469c-8985-bc71c6d72f94,114UP,Late Arrival,2026-11-07 17:13:00+00:00,Bus was 20 mins late,True
+77f9abe0-0c01-43c4-9d80-afef89b353bc,114UP,Late Arrival,2026-11-08 12:26:00+00:00,,True
+23f8d672-2032-4c3d-8720-738536e4e49c,116ADOWN2,Late Arrival,2026-11-08 17:50:00+00:00,,True
+2583d323-1cf1-48f8-8797-19a1f6b5c7a8,116ADOWN2,Overcrowding,2026-11-07 13:51:00+00:00,Need more buses,True
+a60e4153-fe34-49d9-aabc-4d04f3e52db3,116ADOWN2,Overcrowding,2026-11-06 12:49:00+00:00,,True
+3f4376d8-2f54-4d33-b960-13d4b8e92023,116ADOWN2,Late Arrival,2026-11-06 09:47:00+00:00,,True
+cc255338-996a-4451-8d6f-c0e198b3bd44,116ADOWN2,No Show,2026-11-07 20:30:00+00:00,Service completely missing,True
+095f7d09-c7d9-4e6a-9781-512c6328981b,116ADOWN2,No Show,2026-11-08 07:39:00+00:00,"Waited 45 mins, no bus",True
+1a3d3e52-c8ba-4e7c-bcbb-18441fc7f72e,116ADOWN2,Wrong Route,2026-11-07 09:40:00+00:00,,True
+051e05cb-5ea7-4a23-b5f6-5082df3af95c,116ADOWN2,Driver Behavior,2026-11-08 07:37:00+00:00,Driver was rude,True
+974313dd-ce3c-42c4-ba18-7a26e4d2b31e,116AUP2,Late Arrival,2026-11-05 20:05:00+00:00,,True
+e8d13213-f95d-488d-bb63-f098be33d332,116AUP2,Late Arrival,2026-11-07 13:27:00+00:00,,True
+a03ce582-0280-4317-af57-3ed744ed82e4,116AUP2,Overcrowding,2026-11-06 10:53:00+00:00,Too packed to board,True
+3b5478cd-20d6-4b54-b8fe-3a73d897948e,116AUP2,Overcrowding,2026-11-05 20:58:00+00:00,"Couldn't get on, too full",True
+cc54cb6f-bb90-40bd-8f8d-8061a690f1c0,116AUP2,Late Arrival,2026-11-06 18:23:00+00:00,Very delayed today,True
+e3b2ea39-5751-486b-9f4d-ed483f468f2b,118EXTNDOWN,Wrong Route,2026-11-05 18:16:00+00:00,Route sign incorrect,True
+6d3494ca-e52c-48da-81a0-038dae820eb8,118EXTNDOWN,Late Arrival,2026-11-07 08:48:00+00:00,,True
+0bb231f6-ffff-4262-a065-12baa027afa6,118EXTNDOWN,Late Arrival,2026-11-06 20:22:00+00:00,Very delayed today,True
+a67a7ee5-b6b0-44f7-9685-14c57c112f3f,118EXTNUP,No Show,2026-11-05 10:25:00+00:00,"Waited 45 mins, no bus",True
+73be9889-0bd4-4ff7-89a5-f48d6e82fe0f,118EXTNUP,Late Arrival,2026-11-08 10:34:00+00:00,Very delayed today,True
+0e505165-da17-42a8-927e-d1b93da41f0a,118EXTNUP,Overcrowding,2026-11-05 17:27:00+00:00,"Couldn't get on, too full",True
+66e640e6-f8f2-427d-b251-20ce746064be,118EXTNUP,No Show,2026-11-07 13:14:00+00:00,Service completely missing,True
+f79fdd65-6d25-4eef-aa61-4c6e74be9773,119LNKSTLDOWN,No Show,2026-11-08 07:20:00+00:00,,True
+88ccd31c-1de2-4683-88d6-717957fc2f15,119LNKSTLDOWN,Overcrowding,2026-11-05 07:19:00+00:00,,True
+7e546dc5-e3b7-4d60-a0f8-57b57e1d70e3,119LNKSTLDOWN,Late Arrival,2026-11-07 13:42:00+00:00,,True
+19f5a26b-b193-4fbc-b877-1fa00949c72f,119LNKSTLDOWN,Wrong Route,2026-11-08 20:56:00+00:00,Driver took wrong road,True
+b8e43474-3878-4128-8678-4a8ce9f6b460,119LNKSTLDOWN,Late Arrival,2026-11-05 18:34:00+00:00,Bus was 20 mins late,True
+1db9eea5-42b9-412a-8f67-1f596b324b1f,119LNKSTLDOWN,Overcrowding,2026-11-08 18:34:00+00:00,,True
+497eced0-1bc5-4c57-892d-1d0fa04900c6,119LNKSTLUP,Driver Behavior,2026-11-06 07:50:00+00:00,,True
+01df32b0-e976-43ff-b223-314bf9f2657c,119LNKSTLUP,No Show,2026-11-05 18:10:00+00:00,,True
+128a3552-deef-4526-a30e-c3a1f2cebd51,119LNKSTLUP,No Show,2026-11-08 12:38:00+00:00,"Waited 45 mins, no bus",True
+8afa29a2-b39c-4468-a6ce-0fd589bbe1b4,119LNKSTLUP,Overcrowding,2026-11-07 07:48:00+00:00,"Couldn't get on, too full",True
+63917b9f-8889-42a1-be76-819c4e9da74e,119LNKSTLUP,Late Arrival,2026-11-05 09:09:00+00:00,,True
+56f96663-f2d4-4d70-92b3-2c95aafd7b52,119LNKSTLUP,No Show,2026-11-08 20:15:00+00:00,,True
+b64adb16-c40f-4fc7-aa8a-35eb85edffd0,119LNKSTLUP,Overcrowding,2026-11-05 12:19:00+00:00,Need more buses,True
+85a6a05a-f9c5-4ebd-9868-89c3a752a8cb,119LNKSTLUP,Late Arrival,2026-11-06 08:08:00+00:00,,True
+d7ff213f-6b87-4777-bdf4-c9d0e4b6db98,119STLDOWN,Vehicle Breakdown,2026-11-05 13:32:00+00:00,"Engine problems, had to leave bus",True
+ded45be1-3659-410d-bf00-7779e4383fad,119STLDOWN,No Show,2026-11-07 10:19:00+00:00,,True
+c1e31bd7-eea6-4374-8401-0d619bbd354b,119STLDOWN,Overcrowding,2026-11-05 19:46:00+00:00,Too packed to board,True
+819b23ae-29f5-4b25-a17c-9df35a3aed6b,119STLDOWN,Overcrowding,2026-11-05 08:42:00+00:00,Need more buses,True
+daa66a4b-4918-4c85-ad79-7e2d0a991fdd,119STLDOWN,Vehicle Breakdown,2026-11-05 10:18:00+00:00,"Engine problems, had to leave bus",True
+fddea4fb-6642-4e86-b8f0-70293feae478,119STLDOWN,Late Arrival,2026-11-06 18:53:00+00:00,,True
+11049066-7ce5-4b0f-a32a-f7890eee9bd2,119STLUP,Late Arrival,2026-11-05 12:32:00+00:00,Bus was 20 mins late,True
+3482d28b-100c-420f-aacb-7c110f2eaec1,119STLUP,No Show,2026-11-05 08:56:00+00:00,Bus never came,True
+6ca57b20-ddf6-42e0-892d-369065049241,119STLUP,Late Arrival,2026-11-06 18:19:00+00:00,Very delayed today,True
+daa8c0ea-9841-4bdb-a70b-3604bc239849,119STLUP,Late Arrival,2026-11-06 12:35:00+00:00,,True
+02256193-a22a-4f94-aeb8-603bc61a674c,120ADOWN,No Show,2026-11-05 17:13:00+00:00,Bus never came,True
+ae2eb60b-09c2-4c03-a9d2-e4e8b7ed5be6,120ADOWN,Late Arrival,2026-11-05 12:03:00+00:00,,True
+eff04266-5087-420c-9aa2-fb875c271fcc,120ADOWN,Overcrowding,2026-11-05 09:15:00+00:00,,True
+91ebc884-d48b-4c94-ada3-6f88a954c4c9,120ADOWN,No Show,2026-11-05 20:54:00+00:00,"Waited 45 mins, no bus",True
+0af4cf68-f879-4c73-9ce5-c763840a6c55,120AUP,Wrong Route,2026-11-08 19:03:00+00:00,Driver took wrong road,True
+2e51e6b1-aed3-4f5a-9bbb-4fcdb97db399,120AUP,No Show,2026-11-05 13:09:00+00:00,,True
+a3a81128-d5ca-4824-9959-f2967fb15c3d,120AUP,No Show,2026-11-05 12:09:00+00:00,Bus never came,True
+31f7033d-2263-412d-b6b1-1c69600cca02,120AUP,No Show,2026-11-08 17:36:00+00:00,"Waited 45 mins, no bus",True
