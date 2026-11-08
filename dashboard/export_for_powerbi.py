@@ -64,18 +64,43 @@ def run():
         df1.to_csv(EXP / "pbi_fleet_kpis.csv", index=False)
         print(f"  Exported {len(df1):,} rows -> pbi_fleet_kpis.csv")
 
-        # 2. Hourly Patterns
+        # 2. Hourly Patterns (24-hour Schedule vs Observed Live Adherence)
         q2 = """
+        WITH hourly_sched AS (
+            SELECT
+                EXTRACT(HOUR FROM departure_time)::INT AS hour_of_day,
+                COUNT(DISTINCT trip_id)                AS scheduled_trips,
+                COUNT(*)                               AS scheduled_stops
+            FROM fact_trip_schedule
+            GROUP BY EXTRACT(HOUR FROM departure_time)
+        ),
+        hourly_actual AS (
+            SELECT
+                EXTRACT(HOUR FROM sched_departure)::INT AS hour_of_day,
+                COUNT(fa.id)                            AS observed_trips,
+                ROUND(100.0 * COUNT(*) FILTER (WHERE fa.is_on_time = TRUE) / NULLIF(COUNT(fa.id), 0), 1) AS otp_pct,
+                ROUND(AVG(fa.delay_minutes)::NUMERIC, 2) AS avg_delay_min,
+                ROUND(AVG(fa.headway_min)::NUMERIC, 2)   AS avg_headway_min
+            FROM fact_trip_actual fa
+            WHERE fa.sched_departure IS NOT NULL
+            GROUP BY EXTRACT(HOUR FROM sched_departure)
+        )
         SELECT
-            EXTRACT(HOUR FROM fa.actual_departure)::INT   AS hour_ist,
-            COUNT(fa.id)                                  AS trips_observed,
-            ROUND(100.0 * COUNT(*) FILTER (WHERE fa.is_on_time = TRUE) / NULLIF(COUNT(fa.id), 0), 1) AS otp_pct,
-            ROUND(AVG(fa.delay_minutes)::NUMERIC, 2)      AS avg_delay_min,
-            ROUND(AVG(fa.headway_min)::NUMERIC, 2)        AS avg_headway_min
-        FROM fact_trip_actual fa
-        WHERE fa.actual_departure IS NOT NULL AND fa.delay_minutes IS NOT NULL
-        GROUP BY EXTRACT(HOUR FROM fa.actual_departure)
-        ORDER BY hour_ist;
+            s.hour_of_day AS hour_ist,
+            COALESCE(a.observed_trips, 0) AS trips_observed,
+            a.otp_pct,
+            a.avg_delay_min,
+            a.avg_headway_min,
+            s.scheduled_trips,
+            CASE
+                WHEN s.hour_of_day BETWEEN 7 AND 10  THEN 'Morning Peak (07-10)'
+                WHEN s.hour_of_day BETWEEN 16 AND 19 THEN 'Evening Peak (16-19)'
+                WHEN s.hour_of_day BETWEEN 11 AND 15 THEN 'Mid-Day Base (11-15)'
+                ELSE 'Night / Early Morning Off-Peak'
+            END AS transit_period
+        FROM hourly_sched s
+        LEFT JOIN hourly_actual a ON a.hour_of_day = s.hour_of_day
+        ORDER BY s.hour_of_day;
         """
         df2 = pd.read_sql(q2, conn)
         df2.to_csv(EXP / "pbi_hourly_patterns.csv", index=False)
@@ -131,6 +156,26 @@ def run():
         df5 = pd.read_sql(q5, conn)
         df5.to_csv(EXP / "pbi_route_map_stops.csv", index=False)
         print(f"  Exported {len(df5):,} rows -> pbi_route_map_stops.csv")
+
+        # 6. Daily Weather & Environmental Context
+        q6 = """
+        SELECT
+            dd.full_date,
+            dd.day_name,
+            dd.is_weekend,
+            dd.is_holiday,
+            fw.temp_max_c,
+            fw.temp_min_c,
+            fw.precipitation_mm,
+            fw.wind_max_kmph,
+            fw.is_rainy
+        FROM fact_weather_daily fw
+        JOIN dim_date dd ON dd.date_id = fw.date_id
+        ORDER BY dd.full_date;
+        """
+        df6 = pd.read_sql(q6, conn)
+        df6.to_csv(EXP / "pbi_daily_weather.csv", index=False)
+        print(f"  Exported {len(df6):,} rows -> pbi_daily_weather.csv")
 
     # 6. Copy ML feature importance
     ml_fi_path = ROOT / "data" / "ml" / "feature_importance.csv"
