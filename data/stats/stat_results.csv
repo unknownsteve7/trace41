@@ -1,0 +1,2 @@
+test,stat,p_value,n_a,n_b,median_a,median_b,conclusion
+headway_vs_bunching_spearman,-0.4811932985538915,2.422524913040395e-38,639,,,,"Routes with longer avg headways tend to have lower bunching rates (rho=-0.481, significant at p=0.05)."
