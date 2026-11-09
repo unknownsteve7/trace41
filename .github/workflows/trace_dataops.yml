@@ -1,9 +1,9 @@
 name: TRACE Automated DataOps Pipeline
 
 on:
-  # 1. Scheduled run every 6 hours (UTC)
+  # 1. Scheduled run every 15 minutes (UTC)
   schedule:
-    - cron: '0 0,6,12,18 * * *'
+    - cron: '*/15 * * * *'
   
   # 2. Manual trigger from GitHub UI anytime
   workflow_dispatch:
