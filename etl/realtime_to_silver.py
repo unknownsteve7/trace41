@@ -171,8 +171,11 @@ def main():
     log.info("TRACE — Realtime .pb → Silver Parquet")
     log.info("=" * 60)
 
-    if len(sys.argv) > 1:
-        dates = [sys.argv[1]]
+    overwrite = "--overwrite" in sys.argv or "-f" in sys.argv
+    args = [a for a in sys.argv[1:] if a not in ("--overwrite", "-f")]
+
+    if args:
+        dates = [args[0]]
     else:
         # All dated subdirectories in data/raw/
         dates = sorted(d.name for d in RAW_DIR.iterdir() if d.is_dir())
@@ -183,7 +186,7 @@ def main():
 
     summaries = []
     for date_str in dates:
-        summary = process_day(date_str)
+        summary = process_day(date_str, overwrite=overwrite)
         summaries.append(summary)
 
     log.info("\n── Summary ──────────────────────────────────────────")

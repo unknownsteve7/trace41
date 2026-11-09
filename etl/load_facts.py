@@ -311,7 +311,16 @@ def load_actual(conn):
                 is_on_time, headway_min, is_bunched,
                 avg_speed_kmph, ping_count, confidence)
                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-               ON CONFLICT (trip_id, vehicle_id) DO NOTHING""",
+               ON CONFLICT (trip_id, vehicle_id) DO UPDATE SET
+                actual_departure = EXCLUDED.actual_departure,
+                sched_departure = EXCLUDED.sched_departure,
+                delay_minutes = EXCLUDED.delay_minutes,
+                is_on_time = EXCLUDED.is_on_time,
+                headway_min = EXCLUDED.headway_min,
+                is_bunched = EXCLUDED.is_bunched,
+                avg_speed_kmph = EXCLUDED.avg_speed_kmph,
+                ping_count = EXCLUDED.ping_count,
+                confidence = EXCLUDED.confidence""",
             rows
         )
         log.info(f"    → Loaded {len(rows)} trip-actual rows for {date_str} ✓")
