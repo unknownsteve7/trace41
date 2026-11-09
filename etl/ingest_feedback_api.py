@@ -40,12 +40,15 @@ SILVER_DIR.mkdir(parents=True, exist_ok=True)
 FEEDBACK_API_URL = os.getenv("FEEDBACK_API_URL", "http://localhost:8000").rstrip("/")
 FEEDBACK_ADMIN_KEY = os.getenv("FEEDBACK_ADMIN_KEY", "trace_admin_secret_key_change_in_prod")
 
+sslmode = os.getenv("PG_SSLMODE", "")
+ssl_param = f" sslmode={sslmode}" if sslmode else ""
 PG_DSN = (
     f"host={os.getenv('PG_HOST', 'localhost')} "
     f"port={os.getenv('PG_PORT', '5432')} "
     f"dbname={os.getenv('PG_DATABASE', 'trace_db')} "
     f"user={os.getenv('PG_USER', 'postgres')} "
     f"password={os.getenv('PG_PASSWORD', 'trace_pass')}"
+    + ssl_param
 )
 
 logging.basicConfig(

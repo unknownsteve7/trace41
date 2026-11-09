@@ -29,12 +29,15 @@ ROOT = Path(__file__).resolve().parent.parent
 EXP  = ROOT / "dashboard" / "export"
 EXP.mkdir(parents=True, exist_ok=True)
 
+sslmode = os.getenv("PG_SSLMODE", "")
+ssl_param = f" sslmode={sslmode}" if sslmode else ""
 PG_DSN = (
     f"host={os.getenv('PG_HOST','localhost')} "
     f"port={os.getenv('PG_PORT','5432')} "
     f"dbname={os.getenv('PG_DATABASE','trace_db')} "
     f"user={os.getenv('PG_USER','postgres')} "
     f"password={os.getenv('PG_PASSWORD','trace_pass')}"
+    + ssl_param
 )
 
 def run():
