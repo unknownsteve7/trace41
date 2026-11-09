@@ -35,6 +35,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
@@ -67,5 +69,6 @@ jobs:
             echo "Datasets are already up to date. Nothing to commit."
           else
             git commit -m "chore(dataops): automated refresh of Power BI data marts [skip ci]"
-            git push
+            git pull --rebase origin main
+            git push origin main
           fi
