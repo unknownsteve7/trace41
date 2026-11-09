@@ -132,7 +132,7 @@ def process_day(date_str: str, overwrite: bool = False) -> dict:
     if len(quarantine_df):
         qpath = QUARANTINE / f"{date_str}.parquet"
         quarantine_df.to_parquet(qpath, index=False, engine="pyarrow")
-        log.warning(f"  Quarantined {len(quarantine_df):,} rows → {qpath.name}")
+        log.warning(f"  Quarantined {len(quarantine_df):,} rows -> {qpath.name}")
     df = df[~df["out_of_bbox"] & df["lat"].notna()]
 
     # ── 4. Parse trip_id → route + schedule time ──────────────────────────────
@@ -153,7 +153,7 @@ def process_day(date_str: str, overwrite: bool = False) -> dict:
 
     # ── Save ──────────────────────────────────────────────────────────────────
     df.to_parquet(out_path, index=False, engine="pyarrow")
-    log.info(f"  → Saved {out_path.name}  ({len(df):,} rows)")
+    log.info(f"  -> Saved {out_path.name}  ({len(df):,} rows)")
 
     return {
         "date":        date_str,
