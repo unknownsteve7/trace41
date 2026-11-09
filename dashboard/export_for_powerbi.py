@@ -184,7 +184,7 @@ def run():
         fi_df.to_csv(EXP / "pbi_ml_metrics.csv", index=False)
         print("  Exported ML metrics -> pbi_ml_metrics.csv")
 
-    print("\nAll Power BI CSV exports generated successfully in dashboard/export/ ✓")
+    print("\nAll Power BI CSV exports generated successfully in dashboard/export/ [OK]")
 
 if __name__ == "__main__":
     run()
