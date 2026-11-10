@@ -1,9 +1,9 @@
 name: TRACE Automated DataOps Pipeline
 
 on:
-  # 1. Scheduled run every 15 minutes (UTC)
+  # 1. Scheduled run every 1 hour (offset at minute 25 to avoid top-of-hour GitHub queue delays)
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '25 * * * *'
   
   # 2. Manual trigger from GitHub UI anytime
   workflow_dispatch:
@@ -63,7 +63,7 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add dashboard/export/*.csv
+          git add dashboard/export/*.csv dashboard/export/dataops_heartbeat.json
           git add -f data/bronze/complaints/watermark.txt || true
           if git diff --staged --quiet; then
             echo "Datasets are already up to date. Nothing to commit."

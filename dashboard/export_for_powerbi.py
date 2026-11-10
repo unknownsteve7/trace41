@@ -18,6 +18,8 @@ Usage:
 
 import os
 import sys
+import json
+from datetime import datetime, timezone
 from pathlib import Path
 import pandas as pd
 import psycopg
@@ -186,6 +188,17 @@ def run():
         fi_df = pd.read_csv(ml_fi_path)
         fi_df.to_csv(EXP / "pbi_ml_metrics.csv", index=False)
         print("  Exported ML metrics -> pbi_ml_metrics.csv")
+
+    # 7. Write DataOps Heartbeat metadata (proves pipeline executed)
+    heartbeat = {
+        "last_sync_utc": datetime.now(timezone.utc).isoformat(),
+        "status": "healthy",
+        "total_routes_kpi": len(df1),
+        "total_complaints": len(df4),
+    }
+    with open(EXP / "dataops_heartbeat.json", "w", encoding="utf-8") as f:
+        json.dump(heartbeat, f, indent=2)
+    print("  Updated DataOps Heartbeat -> dataops_heartbeat.json")
 
     print("\nAll Power BI CSV exports generated successfully in dashboard/export/ [OK]")
 
