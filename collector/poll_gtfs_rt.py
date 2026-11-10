@@ -43,6 +43,7 @@ SVC_START     = int(os.getenv("SERVICE_START_HOUR", "5"))
 SVC_END       = int(os.getenv("SERVICE_END_HOUR", "23"))
 
 RAW_DIR       = Path("data/raw")
+RAW_DIR.mkdir(parents=True, exist_ok=True)
 LOG_DIR       = Path("logs")
 RUN_LOG_CSV   = RAW_DIR / "etl_run_log.csv"
 
@@ -65,11 +66,13 @@ RUN_LOG_FIELDS = [
 ]
 
 def _init_run_log():
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
     if not RUN_LOG_CSV.exists():
         with open(RUN_LOG_CSV, "w", newline="") as f:
             csv.DictWriter(f, fieldnames=RUN_LOG_FIELDS).writeheader()
 
 def _append_run_log(row: dict):
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
     with open(RUN_LOG_CSV, "a", newline="") as f:
         csv.DictWriter(f, fieldnames=RUN_LOG_FIELDS).writerow(row)
 

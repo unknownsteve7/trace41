@@ -35,6 +35,7 @@ load_dotenv()
 
 ROOT      = Path(__file__).resolve().parent.parent
 SILVER    = ROOT / "data" / "silver"
+(SILVER / "realtime").mkdir(parents=True, exist_ok=True)
 COMPL_CSV = ROOT / "data" / "complaints" / "simulated.csv"
 
 sslmode = os.getenv("PG_SSLMODE", "")
