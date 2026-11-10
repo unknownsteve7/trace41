@@ -129,11 +129,11 @@ def do_poll() -> dict:
     if raw_bytes is None:
         row["http_status"] = "error"
         row["error_message"] = "fetch failed after retries"
-        log.error(f"Poll FAILED → no file written")
+        log.error(f"Poll FAILED -> no file written")
     else:
         out_file.write_bytes(raw_bytes)
         row["bytes_written"] = len(raw_bytes)
-        log.info(f"Poll OK → {out_file.name}  ({len(raw_bytes):,} bytes)")
+        log.info(f"Poll OK -> {out_file.name}  ({len(raw_bytes):,} bytes)")
 
     row["poll_finished_utc"] = datetime.now(timezone.utc).isoformat()
     return row
@@ -156,19 +156,31 @@ def sleep_until_service():
         time.sleep(60)
 
 
+import argparse
+
 # ── Main loop ─────────────────────────────────────────────────────────────────
 def main():
+    parser = argparse.ArgumentParser(description="TRACE GTFS-RT Polling Collector")
+    parser.add_argument("--count", type=int, default=0, help="Number of polls to perform (0 = run indefinitely)")
+    parser.add_argument("--interval", type=int, default=POLL_INTERVAL, help="Poll interval in seconds")
+    args = parser.parse_args()
+
+    poll_int = args.interval
+    max_polls = args.count
+
     if not API_KEY:
         log.warning("OTD_API_KEY not set in .env — requests will be sent without key")
 
     _init_run_log()
     log.info(f"=== TRACE Collector started ===")
     log.info(f"Feed URL      : {FEED_URL}")
-    log.info(f"Poll interval : {POLL_INTERVAL}s")
+    log.info(f"Poll interval : {poll_int}s")
+    log.info(f"Max polls     : {'Unlimited (Daemon)' if max_polls == 0 else max_polls}")
     log.info(f"Service hours : {SVC_START}:00 – {SVC_END}:00")
     log.info(f"Raw output dir: {RAW_DIR.resolve()}")
     log.info(f"Run log CSV   : {RUN_LOG_CSV.resolve()}")
-    log.info("Press Ctrl+C to stop gracefully.\n")
+    if max_polls == 0:
+        log.info("Press Ctrl+C to stop gracefully.\n")
 
     polls_done = 0
     try:
@@ -178,13 +190,17 @@ def main():
             _append_run_log(row)
             polls_done += 1
 
+            if max_polls > 0 and polls_done >= max_polls:
+                log.info(f"Reached requested poll limit of {max_polls}. Exiting.")
+                break
+
             # Countdown to next poll
             next_poll = datetime.now()
             log.info(
-                f"[Poll #{polls_done}] Next poll in {POLL_INTERVAL}s "
+                f"[Poll #{polls_done}] Next poll in {poll_int}s "
                 f"(~{next_poll.strftime('%H:%M:%S')})"
             )
-            time.sleep(POLL_INTERVAL)
+            time.sleep(poll_int)
 
     except KeyboardInterrupt:
         log.info(f"\n=== Collector stopped by user. Total polls: {polls_done} ===")

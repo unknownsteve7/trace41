@@ -1,7 +1,7 @@
 name: TRACE Automated DataOps Pipeline
 
 on:
-  # 1. Scheduled run every 1 hour (offset at minute 25 to avoid top-of-hour GitHub queue delays)
+  # 1. Scheduled run every 1 hour (offset at minute 25)
   schedule:
     - cron: '25 * * * *'
   
@@ -16,21 +16,87 @@ on:
 permissions:
   contents: write
 
-jobs:
-  run-pipeline:
-    name: Sync Grievances & Refresh Power BI Data Marts
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+env:
+  PG_HOST: ${{ secrets.PG_HOST || 'aws-0-ap-northeast-1.pooler.supabase.com' }}
+  PG_PORT: ${{ secrets.PG_PORT || '5432' }}
+  PG_DATABASE: ${{ secrets.PG_DATABASE || 'postgres' }}
+  PG_USER: ${{ secrets.PG_USER || 'postgres.ilfwynrwvufabnsjesum' }}
+  PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
+  PG_SSLMODE: 'require'
+  FEEDBACK_API_URL: 'https://trace-feedback.vercel.app'
+  FEEDBACK_ADMIN_KEY: ${{ secrets.FEEDBACK_ADMIN_KEY || 'trace_admin_secret_key_change_in_prod' }}
+  OTD_API_KEY: ${{ secrets.OTD_API_KEY || 'kV0HS8CSWr6NmORI1XIPRqXm62fujtio' }}
+  OTD_VEHICLE_POSITIONS_URL: 'https://otd.delhi.gov.in/api/realtime/VehiclePositions.pb'
 
-    env:
-      PG_HOST: ${{ secrets.PG_HOST || 'aws-0-ap-northeast-1.pooler.supabase.com' }}
-      PG_PORT: ${{ secrets.PG_PORT || '5432' }}
-      PG_DATABASE: ${{ secrets.PG_DATABASE || 'postgres' }}
-      PG_USER: ${{ secrets.PG_USER || 'postgres.ilfwynrwvufabnsjesum' }}
-      PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
-      PG_SSLMODE: 'require'
-      FEEDBACK_API_URL: 'https://trace-feedback.vercel.app'
-      FEEDBACK_ADMIN_KEY: ${{ secrets.FEEDBACK_ADMIN_KEY || 'trace_admin_secret_key_change_in_prod' }}
+jobs:
+  # ============================================================================
+  # Stage 1: Passenger Grievances (Vercel API -> Supabase Cloud DB)
+  # ============================================================================
+  ingest-grievances:
+    name: 📱 Ingest QR Grievances (Vercel -> Supabase)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Sync Grievances from Vercel to Supabase
+        run: |
+          python etl/ingest_feedback_api.py
+
+  # ============================================================================
+  # Stage 2: Real-Time Bus Telemetry (Delhi OTD API -> Silver -> Gold Star Schema)
+  # ============================================================================
+  ingest-telemetry:
+    name: 🚌 Ingest GTFS-RT Telemetry (OTD -> Silver -> Gold)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: 1. Poll Live Delhi Bus Positions (OTD API)
+        run: |
+          python collector/poll_gtfs_rt.py --count 1
+
+      - name: 2. Transform Raw .pb to Silver Parquet
+        run: |
+          python etl/realtime_to_silver.py
+
+      - name: 3. Calculate Delays/OTP & Load to Supabase Gold Layer
+        run: |
+          python etl/load_facts.py actual
+
+  # ============================================================================
+  # Stage 3: Publish Data Marts (Supabase -> Power BI CSVs & Git Push)
+  # ============================================================================
+  publish-powerbi:
+    name: 📊 Export Power BI Data Marts & Git Sync
+    needs: [ingest-grievances, ingest-telemetry]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Check out repository
@@ -46,20 +112,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Step 1 - Ingest QR Grievances from Vercel to Supabase Cloud
+      - name: Export Fresh Data Marts from Supabase Cloud
         run: |
-          echo "Connecting to Vercel API and syncing new feedback to Supabase Cloud..."
-          python etl/ingest_feedback_api.py
-
-      - name: Step 2 - Refresh Power BI Data Marts from Supabase Cloud
-        run: |
-          echo "Exporting fresh analytical CSVs from Supabase Cloud..."
           python dashboard/export_for_powerbi.py
 
-      - name: Step 3 - Commit & Push Updated Data to Repository
+      - name: Commit & Push Updated Data to Repository
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
