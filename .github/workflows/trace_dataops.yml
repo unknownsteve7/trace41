@@ -79,7 +79,7 @@ jobs:
 
       - name: 1. Poll Live Delhi Bus Positions (OTD API)
         run: |
-          python collector/poll_gtfs_rt.py --count 1
+          python collector/poll_gtfs_rt.py --count 1 --force
 
       - name: 2. Transform Raw .pb to Silver Parquet
         run: |

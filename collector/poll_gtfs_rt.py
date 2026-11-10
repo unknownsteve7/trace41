@@ -24,7 +24,7 @@ import os
 import sys
 import time
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 import requests
@@ -142,19 +142,21 @@ def do_poll() -> dict:
     return row
 
 
-# ── Service-hour guard ────────────────────────────────────────────────────────
+# ── Service-hour guard (evaluated in IST) ─────────────────────────────────────
+IST = timezone(timedelta(hours=5, minutes=30))
+
 def in_service_hours() -> bool:
-    hour = datetime.now().hour
-    return SVC_START <= hour < SVC_END
+    hour_ist = datetime.now(IST).hour
+    return SVC_START <= hour_ist < SVC_END
 
 
 def sleep_until_service():
-    """Block until service hours begin, checking every minute."""
+    """Block until service hours begin, checking every minute (for daemon mode)."""
     while not in_service_hours():
-        now = datetime.now()
+        now_ist = datetime.now(IST)
         log.info(
-            f"Outside service hours ({SVC_START}:00–{SVC_END}:00). "
-            f"Current time: {now.strftime('%H:%M')}. Sleeping 60s..."
+            f"Outside service hours ({SVC_START}:00–{SVC_END}:00 IST). "
+            f"Current IST time: {now_ist.strftime('%H:%M')}. Sleeping 60s..."
         )
         time.sleep(60)
 
@@ -166,6 +168,7 @@ def main():
     parser = argparse.ArgumentParser(description="TRACE GTFS-RT Polling Collector")
     parser.add_argument("--count", type=int, default=0, help="Number of polls to perform (0 = run indefinitely)")
     parser.add_argument("--interval", type=int, default=POLL_INTERVAL, help="Poll interval in seconds")
+    parser.add_argument("--force", action="store_true", help="Bypass service hours check")
     args = parser.parse_args()
 
     poll_int = args.interval
@@ -179,16 +182,23 @@ def main():
     log.info(f"Feed URL      : {FEED_URL}")
     log.info(f"Poll interval : {poll_int}s")
     log.info(f"Max polls     : {'Unlimited (Daemon)' if max_polls == 0 else max_polls}")
-    log.info(f"Service hours : {SVC_START}:00 – {SVC_END}:00")
+    log.info(f"Service hours : {SVC_START}:00 – {SVC_END}:00 IST")
+    log.info(f"Current IST   : {datetime.now(IST).strftime('%Y-%m-%d %H:%M:%S')}")
     log.info(f"Raw output dir: {RAW_DIR.resolve()}")
     log.info(f"Run log CSV   : {RUN_LOG_CSV.resolve()}")
     if max_polls == 0:
         log.info("Press Ctrl+C to stop gracefully.\n")
 
+    # If running in batch/CI mode (--count > 0) and outside service hours without --force:
+    if max_polls > 0 and not args.force and not in_service_hours():
+        log.info(f"Outside IST service hours ({SVC_START}:00 - {SVC_END}:00). Skipping batch poll.")
+        sys.exit(0)
+
     polls_done = 0
     try:
         while True:
-            sleep_until_service()
+            if max_polls == 0 and not args.force:
+                sleep_until_service()
             row = do_poll()
             _append_run_log(row)
             polls_done += 1
@@ -198,10 +208,10 @@ def main():
                 break
 
             # Countdown to next poll
-            next_poll = datetime.now()
+            next_poll = datetime.now(IST)
             log.info(
                 f"[Poll #{polls_done}] Next poll in {poll_int}s "
-                f"(~{next_poll.strftime('%H:%M:%S')})"
+                f"(~{next_poll.strftime('%H:%M:%S')} IST)"
             )
             time.sleep(poll_int)
 
