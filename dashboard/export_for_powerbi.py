@@ -135,13 +135,14 @@ def run():
         q4 = """
         SELECT
             fc.complaint_id,
-            dr.route_short_name,
+            COALESCE(dr.route_short_name, 'Route ' || COALESCE(fc.vehicle_id, 'Citywide')) AS route_short_name,
             fc.category,
             fc.submitted_at,
             fc.complaint_text,
             fc.is_simulated
         FROM fact_complaints fc
-        LEFT JOIN dim_route dr ON dr.route_key = fc.route_key;
+        LEFT JOIN dim_route dr ON dr.route_key = fc.route_key
+        ORDER BY fc.submitted_at DESC;
         """
         df4 = pd.read_sql(q4, conn)
         df4.to_csv(EXP / "pbi_complaints.csv", index=False)

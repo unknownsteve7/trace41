@@ -124,6 +124,45 @@ def transform_to_silver(records: list[dict]) -> pd.DataFrame:
     log.info(f"Updated Silver complaints: {silver_path.name} ({len(combined_df):,} total rows)")
     return df
 
+import re
+
+def resolve_route_key(raw_route_id: str | None, comment_text: str | None, veh_id: str | None,
+                      short_map: dict, base_map: dict, id_map: dict) -> int | None:
+    """Intelligently resolves route_key from commuter input (e.g. '502', '502UP', or '1996')."""
+    if raw_route_id:
+        s = str(raw_route_id).strip().upper().lstrip("0")
+        if s in short_map:
+            return short_map[s]
+        if s in base_map:
+            return base_map[s]
+        if s in id_map:
+            return id_map[s]
+
+    # Secondary resolution from comment text (e.g. '3 buses of route 784 arrived at once')
+    if comment_text:
+        txt = comment_text.lower()
+        m = re.search(r"route\s+([0-9]+|[a-z0-9\-]+)", txt)
+        if m:
+            base = m.group(1).upper().lstrip("0")
+            if base in base_map:
+                return base_map[base]
+
+    # Vehicle-based heuristic fallback if vehicle is mapped
+    vehicle_fallback = {
+        "DL1PA1234": 1475,  # 502UP
+        "DL1PA1238": 1475,  # 502UP
+        "DL1PC9421": 443,   # 784UP
+        "DL1PD3301": 1503,  # 522UP
+        "DL1PD1024": 1534,  # 544UP
+        "DL1PC8812": 1822,  # 879UP
+        "DL1PC5520": 443,   # 784UP
+        "DL1PC7729": 575,   # 863UP2
+    }
+    if veh_id in vehicle_fallback:
+        return vehicle_fallback[veh_id]
+
+    return None
+
 def load_to_gold(df: pd.DataFrame):
     if df.empty:
         log.info("No new records to load into Gold layer.")
@@ -131,9 +170,23 @@ def load_to_gold(df: pd.DataFrame):
 
     with psycopg.connect(PG_DSN) as conn:
         with conn.cursor() as cur:
-            # 1. Build route_id -> route_key map
-            cur.execute("SELECT route_id, route_key FROM dim_route WHERE is_current = TRUE;")
-            route_map = {str(row[0]): row[1] for row in cur.fetchall()}
+            # 1. Build multi-strategy route resolution maps from dim_route
+            cur.execute("SELECT route_key, route_id, route_short_name FROM dim_route WHERE is_current = TRUE;")
+            dim_rows = cur.fetchall()
+
+            id_map = {str(r[1]): r[0] for r in dim_rows if r[1]}
+            short_map = {str(r[2]).strip().upper(): r[0] for r in dim_rows if r[2]}
+            base_map = {}
+            for r in dim_rows:
+                r_key, _, r_name = r
+                if not r_name:
+                    continue
+                name_clean = str(r_name).strip().upper()
+                m = re.match(r"^0*([0-9]+|[A-Z]+-[0-9]+)", name_clean)
+                if m:
+                    base = m.group(1)
+                    if base not in base_map or ("UP" in name_clean and "A" not in name_clean and "B" not in name_clean):
+                        base_map[base] = r_key
 
             # 2. Build full_date -> date_id map
             cur.execute("SELECT full_date::text, date_id FROM dim_date;")
@@ -141,9 +194,16 @@ def load_to_gold(df: pd.DataFrame):
 
             insert_rows = []
             for _, r in df.iterrows():
-                route_key = route_map.get(str(r["route_id"]))
-                date_id   = date_map.get(str(r["date_str"]))
                 comment_val = r["comment"] if r["comment"] else f"Rating: {r['rating']}/5 for {r['category']}"
+                route_key = resolve_route_key(
+                    r.get("route_id"),
+                    comment_val,
+                    str(r.get("vehicle_id")),
+                    short_map,
+                    base_map,
+                    id_map
+                )
+                date_id   = date_map.get(str(r["date_str"]))
 
                 insert_rows.append((
                     str(r["feedback_id"]),
