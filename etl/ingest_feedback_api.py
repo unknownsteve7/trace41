@@ -1,21 +1,3 @@
-"""
-etl/ingest_feedback_api.py
-───────────────────────────────────────────────────────────────────────────────
-TRACE Pipeline — Automated API Ingestion of Passenger Grievances (Pillar 3).
-
-Connects to the published FastAPI Feedback Service via REST API:
-  GET {FEEDBACK_API_URL}/admin/export?since={watermark}&limit=2000
-  Header: X-API-KEY: {FEEDBACK_ADMIN_KEY}
-
-Medallion Architecture Flow:
-  1. API Ingestion  → data/bronze/complaints/bronze_{timestamp}.json
-  2. Silver Layer   → Dedupe, text sanitization, route/vehicle checks → data/silver/complaints.parquet
-  3. Gold Star Schema → PostgreSQL fact_complaints (linked to dim_route & dim_date)
-
-Usage:
-    python etl/ingest_feedback_api.py
-"""
-
 import os
 import sys
 import json
@@ -26,154 +8,105 @@ import requests
 import pandas as pd
 import psycopg
 from dotenv import load_dotenv
-
 ROOT = Path(__file__).resolve().parent.parent
-load_dotenv(ROOT / ".env")
-
-BRONZE_DIR = ROOT / "data" / "bronze" / "complaints"
-SILVER_DIR = ROOT / "data" / "silver"
-WATERMARK_FILE = BRONZE_DIR / "watermark.txt"
-
+load_dotenv(ROOT / '.env')
+BRONZE_DIR = ROOT / 'data' / 'bronze' / 'complaints'
+SILVER_DIR = ROOT / 'data' / 'silver'
+WATERMARK_FILE = BRONZE_DIR / 'watermark.txt'
 BRONZE_DIR.mkdir(parents=True, exist_ok=True)
 SILVER_DIR.mkdir(parents=True, exist_ok=True)
-
-FEEDBACK_API_URL = os.getenv("FEEDBACK_API_URL", "http://localhost:8000").rstrip("/")
-FEEDBACK_ADMIN_KEY = os.getenv("FEEDBACK_ADMIN_KEY", "trace_admin_secret_key_change_in_prod")
-
-sslmode = os.getenv("PG_SSLMODE", "")
-ssl_param = f" sslmode={sslmode}" if sslmode else ""
-PG_DSN = (
-    f"host={os.getenv('PG_HOST', 'localhost')} "
-    f"port={os.getenv('PG_PORT', '5432')} "
-    f"dbname={os.getenv('PG_DATABASE', 'trace_db')} "
-    f"user={os.getenv('PG_USER', 'postgres')} "
-    f"password={os.getenv('PG_PASSWORD', 'trace_pass')}"
-    + ssl_param
-)
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)-8s %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)],
-)
-log = logging.getLogger("ingest_feedback_api")
+FEEDBACK_API_URL = os.getenv('FEEDBACK_API_URL', 'http://localhost:8000').rstrip('/')
+FEEDBACK_ADMIN_KEY = os.getenv('FEEDBACK_ADMIN_KEY', 'trace_admin_secret_key_change_in_prod')
+sslmode = os.getenv('PG_SSLMODE', '')
+ssl_param = f' sslmode={sslmode}' if sslmode else ''
+PG_DSN = f"host={os.getenv('PG_HOST', 'localhost')} port={os.getenv('PG_PORT', '5432')} dbname={os.getenv('PG_DATABASE', 'trace_db')} user={os.getenv('PG_USER', 'postgres')} password={os.getenv('PG_PASSWORD', 'trace_pass')}" + ssl_param
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s', handlers=[logging.StreamHandler(sys.stdout)])
+log = logging.getLogger('ingest_feedback_api')
 
 def get_last_watermark() -> str | None:
     if WATERMARK_FILE.exists():
-        wm = WATERMARK_FILE.read_text(encoding="utf-8").strip()
+        wm = WATERMARK_FILE.read_text(encoding='utf-8').strip()
         return wm if wm else None
     return None
 
 def set_last_watermark(wm: str):
-    WATERMARK_FILE.write_text(wm, encoding="utf-8")
+    WATERMARK_FILE.write_text(wm, encoding='utf-8')
 
-def pull_from_api(since: str | None = None) -> list[dict]:
-    url = f"{FEEDBACK_API_URL}/admin/export"
-    params = {"limit": 2000, "include_synthetic": True}
+def pull_from_api(since: str | None=None) -> list[dict]:
+    url = f'{FEEDBACK_API_URL}/admin/export'
+    params = {'limit': 2000, 'include_synthetic': True}
     if since:
-        params["since"] = since
-
-    headers = {"X-API-KEY": FEEDBACK_ADMIN_KEY}
-
-    log.info(f"Connecting to FastAPI Feedback Service: {url} ...")
+        params['since'] = since
+    headers = {'X-API-KEY': FEEDBACK_ADMIN_KEY}
+    log.info(f'Connecting to FastAPI Feedback Service: {url} ...')
     try:
         resp = requests.get(url, params=params, headers=headers, timeout=15)
         resp.raise_for_status()
         data = resp.json()
-        log.info(f"Successfully fetched {len(data)} grievance records from API.")
+        log.info(f'Successfully fetched {len(data)} grievance records from API.')
         return data
     except requests.exceptions.RequestException as e:
-        log.error(f"Failed to fetch grievances from FastAPI API: {e}")
+        log.error(f'Failed to fetch grievances from FastAPI API: {e}')
         return []
 
 def save_to_bronze(records: list[dict]):
     if not records:
         return
-    ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    out_file = BRONZE_DIR / f"bronze_{ts}.json"
-    with open(out_file, "w", encoding="utf-8") as f:
+    ts = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')
+    out_file = BRONZE_DIR / f'bronze_{ts}.json'
+    with open(out_file, 'w', encoding='utf-8') as f:
         json.dump(records, f, indent=2, default=str)
-    log.info(f"Saved Bronze snapshot: {out_file.name}")
+    log.info(f'Saved Bronze snapshot: {out_file.name}')
 
 def transform_to_silver(records: list[dict]) -> pd.DataFrame:
     if not records:
         return pd.DataFrame()
-
     df = pd.DataFrame(records)
-    
-    # 1. Deduplication
-    df = df.drop_duplicates(subset=["feedback_id"])
-
-    # 2. Timestamp normalization
-    df["received_at_utc"] = pd.to_datetime(df["received_at_utc"], utc=True)
-    df["date_str"] = df["received_at_utc"].dt.strftime("%Y-%m-%d")
-
-    # 3. Clean comment text & ratings
-    df["comment"] = df["comment"].fillna("").astype(str).str.strip()
-    df["rating"] = pd.to_numeric(df["rating"], errors="coerce").fillna(3).astype(int)
-
-    # 4. Save to Silver Parquet
-    silver_path = SILVER_DIR / "complaints.parquet"
+    df = df.drop_duplicates(subset=['feedback_id'])
+    df['received_at_utc'] = pd.to_datetime(df['received_at_utc'], utc=True)
+    df['date_str'] = df['received_at_utc'].dt.strftime('%Y-%m-%d')
+    df['comment'] = df['comment'].fillna('').astype(str).str.strip()
+    df['rating'] = pd.to_numeric(df['rating'], errors='coerce').fillna(3).astype(int)
+    silver_path = SILVER_DIR / 'complaints.parquet'
     if silver_path.exists():
         existing_df = pd.read_parquet(silver_path)
-        combined_df = pd.concat([existing_df, df]).drop_duplicates(subset=["feedback_id"])
+        combined_df = pd.concat([existing_df, df]).drop_duplicates(subset=['feedback_id'])
     else:
         combined_df = df
-
     combined_df.to_parquet(silver_path, index=False)
-    log.info(f"Updated Silver complaints: {silver_path.name} ({len(combined_df):,} total rows)")
+    log.info(f'Updated Silver complaints: {silver_path.name} ({len(combined_df):,} total rows)')
     return df
-
 import re
 
-def resolve_route_key(raw_route_id: str | None, comment_text: str | None, veh_id: str | None,
-                      short_map: dict, base_map: dict, id_map: dict) -> int | None:
-    """Intelligently resolves route_key from commuter input (e.g. '502', '502UP', or '1996')."""
+def resolve_route_key(raw_route_id: str | None, comment_text: str | None, veh_id: str | None, short_map: dict, base_map: dict, id_map: dict) -> int | None:
     if raw_route_id:
-        s = str(raw_route_id).strip().upper().lstrip("0")
+        s = str(raw_route_id).strip().upper().lstrip('0')
         if s in short_map:
             return short_map[s]
         if s in base_map:
             return base_map[s]
         if s in id_map:
             return id_map[s]
-
-    # Secondary resolution from comment text (e.g. '3 buses of route 784 arrived at once')
     if comment_text:
         txt = comment_text.lower()
-        m = re.search(r"route\s+([0-9]+|[a-z0-9\-]+)", txt)
+        m = re.search('route\\s+([0-9]+|[a-z0-9\\-]+)', txt)
         if m:
-            base = m.group(1).upper().lstrip("0")
+            base = m.group(1).upper().lstrip('0')
             if base in base_map:
                 return base_map[base]
-
-    # Vehicle-based heuristic fallback if vehicle is mapped
-    vehicle_fallback = {
-        "DL1PA1234": 1475,  # 502UP
-        "DL1PA1238": 1475,  # 502UP
-        "DL1PC9421": 443,   # 784UP
-        "DL1PD3301": 1503,  # 522UP
-        "DL1PD1024": 1534,  # 544UP
-        "DL1PC8812": 1822,  # 879UP
-        "DL1PC5520": 443,   # 784UP
-        "DL1PC7729": 575,   # 863UP2
-    }
+    vehicle_fallback = {'DL1PA1234': 1475, 'DL1PA1238': 1475, 'DL1PC9421': 443, 'DL1PD3301': 1503, 'DL1PD1024': 1534, 'DL1PC8812': 1822, 'DL1PC5520': 443, 'DL1PC7729': 575}
     if veh_id in vehicle_fallback:
         return vehicle_fallback[veh_id]
-
     return None
 
 def load_to_gold(df: pd.DataFrame):
     if df.empty:
-        log.info("No new records to load into Gold layer.")
+        log.info('No new records to load into Gold layer.')
         return
-
     with psycopg.connect(PG_DSN) as conn:
         with conn.cursor() as cur:
-            # 1. Build multi-strategy route resolution maps from dim_route
-            cur.execute("SELECT route_key, route_id, route_short_name FROM dim_route WHERE is_current = TRUE;")
+            cur.execute('SELECT route_key, route_id, route_short_name FROM dim_route WHERE is_current = TRUE;')
             dim_rows = cur.fetchall()
-
             id_map = {str(r[1]): r[0] for r in dim_rows if r[1]}
             short_map = {str(r[2]).strip().upper(): r[0] for r in dim_rows if r[2]}
             base_map = {}
@@ -182,85 +115,44 @@ def load_to_gold(df: pd.DataFrame):
                 if not r_name:
                     continue
                 name_clean = str(r_name).strip().upper()
-                m = re.match(r"^0*([0-9]+|[A-Z]+-[0-9]+)", name_clean)
+                m = re.match('^0*([0-9]+|[A-Z]+-[0-9]+)', name_clean)
                 if m:
                     base = m.group(1)
-                    if base not in base_map or ("UP" in name_clean and "A" not in name_clean and "B" not in name_clean):
+                    if base not in base_map or ('UP' in name_clean and 'A' not in name_clean and ('B' not in name_clean)):
                         base_map[base] = r_key
-
-            # 2. Build full_date -> date_id map
-            cur.execute("SELECT full_date::text, date_id FROM dim_date;")
+            cur.execute('SELECT full_date::text, date_id FROM dim_date;')
             date_map = {str(row[0]): row[1] for row in cur.fetchall()}
-
             insert_rows = []
             for _, r in df.iterrows():
-                comment_val = r["comment"] if r["comment"] else f"Rating: {r['rating']}/5 for {r['category']}"
-                route_key = resolve_route_key(
-                    r.get("route_id"),
-                    comment_val,
-                    str(r.get("vehicle_id")),
-                    short_map,
-                    base_map,
-                    id_map
-                )
-                date_id   = date_map.get(str(r["date_str"]))
-
-                insert_rows.append((
-                    str(r["feedback_id"]),
-                    route_key,
-                    date_id,
-                    None,                       # stop_id
-                    str(r["vehicle_id"]),
-                    str(r["category"]),
-                    comment_val,
-                    r["received_at_utc"].to_pydatetime(),
-                    bool(r["is_synthetic"])
-                ))
-
-            cur.executemany("""
-                INSERT INTO fact_complaints
-                    (complaint_id, route_key, date_id, stop_id, vehicle_id,
-                     category, complaint_text, submitted_at, is_simulated)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                ON CONFLICT (complaint_id) DO NOTHING;
-            """, insert_rows)
-
+                comment_val = r['comment'] if r['comment'] else f"Rating: {r['rating']}/5 for {r['category']}"
+                route_key = resolve_route_key(r.get('route_id'), comment_val, str(r.get('vehicle_id')), short_map, base_map, id_map)
+                date_id = date_map.get(str(r['date_str']))
+                insert_rows.append((str(r['feedback_id']), route_key, date_id, None, str(r['vehicle_id']), str(r['category']), comment_val, r['received_at_utc'].to_pydatetime(), bool(r['is_synthetic'])))
+            cur.executemany('\n                INSERT INTO fact_complaints\n                    (complaint_id, route_key, date_id, stop_id, vehicle_id,\n                     category, complaint_text, submitted_at, is_simulated)\n                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)\n                ON CONFLICT (complaint_id) DO NOTHING;\n            ', insert_rows)
             conn.commit()
-
-            cur.execute("SELECT COUNT(*) FROM fact_complaints;")
+            cur.execute('SELECT COUNT(*) FROM fact_complaints;')
             total = cur.fetchone()[0]
-            log.info(f"Loaded {len(insert_rows)} rows into fact_complaints. Total Gold records: {total:,}")
+            log.info(f'Loaded {len(insert_rows)} rows into fact_complaints. Total Gold records: {total:,}')
 
 def main():
-    log.info("=" * 60)
-    log.info("TRACE Pipeline — Ingest Grievances via FastAPI Endpoint")
-    log.info("=" * 60)
-
+    log.info('=' * 60)
+    log.info('TRACE Pipeline — Ingest Grievances via FastAPI Endpoint')
+    log.info('=' * 60)
     watermark = get_last_watermark()
     if watermark:
-        log.info(f"Incremental pull using watermark: {watermark}")
+        log.info(f'Incremental pull using watermark: {watermark}')
     else:
-        log.info("Initial full pull (no previous watermark)")
-
+        log.info('Initial full pull (no previous watermark)')
     records = pull_from_api(since=watermark)
     if not records:
-        log.info("No new records returned by API.")
+        log.info('No new records returned by API.')
         return
-
-    # Bronze
     save_to_bronze(records)
-
-    # Silver
     df_clean = transform_to_silver(records)
-
-    # Gold
     load_to_gold(df_clean)
-
-    # Advance Watermark
-    max_ts = max(r["received_at_utc"] for r in records)
+    max_ts = max((r['received_at_utc'] for r in records))
     set_last_watermark(str(max_ts))
-    log.info(f"Advanced watermark to: {max_ts}")
-    log.info("Pipeline sync completed successfully [OK]")
-
-if __name__ == "__main__":
+    log.info(f'Advanced watermark to: {max_ts}')
+    log.info('Pipeline sync completed successfully [OK]')
+if __name__ == '__main__':
     main()

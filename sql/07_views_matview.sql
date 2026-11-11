@@ -1,10 +1,3 @@
--- =============================================================================
--- sql/07_views_matview.sql
--- Views and materialized views for reusable KPI aggregates.
--- Demonstrates: CREATE VIEW, CREATE MATERIALIZED VIEW, REFRESH.
--- =============================================================================
-
--- ── 1. Regular View: Route Daily KPIs ────────────────────────────────────────
 CREATE OR REPLACE VIEW v_route_daily_kpis AS
 SELECT
     dd.full_date,
@@ -31,9 +24,6 @@ JOIN dim_route dr ON dr.route_key = fa.route_key
 JOIN dim_date  dd ON dd.date_id   = fa.date_id
 GROUP BY dd.full_date, dd.day_name, dd.is_weekend, dd.is_holiday,
          dr.route_id, dr.route_short_name, dr.route_long_name;
-
--- ── 2. Materialized View: Hourly headway summary ─────────────────────────────
--- Expensive to compute every time — cache it as a materialized view.
 CREATE MATERIALIZED VIEW IF NOT EXISTS mv_hourly_headway AS
 SELECT
     dr.route_short_name,
@@ -52,17 +42,9 @@ JOIN dim_route dr ON dr.route_key = fa.route_key
 WHERE fa.headway_min IS NOT NULL AND fa.headway_min > 0
 GROUP BY dr.route_short_name, dr.route_id,
          EXTRACT(HOUR FROM fa.actual_departure);
-
--- Create index on the materialized view for fast filtering
 CREATE INDEX IF NOT EXISTS idx_mv_hourly_route
     ON mv_hourly_headway (route_id, hour_ist);
-
--- ── 3. Refresh command (run after each ETL load) ──────────────────────────────
--- REFRESH MATERIALIZED VIEW CONCURRENTLY mv_hourly_headway;
--- (Remove CONCURRENTLY if no UNIQUE index exists yet)
 REFRESH MATERIALIZED VIEW mv_hourly_headway;
-
--- ── 4. Weather + OTP joined view ─────────────────────────────────────────────
 CREATE OR REPLACE VIEW v_weather_otp AS
 SELECT
     dd.full_date,

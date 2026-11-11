@@ -1,10 +1,3 @@
--- =============================================================================
--- sql/02_otp_by_route.sql
--- On-Time Performance (OTP) and average delay by route and hour of day.
--- Demonstrates: GROUP BY ROLLUP, window functions, FILTER clause.
--- =============================================================================
-
--- ── View: OTP and avg delay by route × hour ───────────────────────────────────
 CREATE OR REPLACE VIEW v_otp_by_route_hour AS
 SELECT
     dr.route_short_name,
@@ -26,8 +19,6 @@ JOIN dim_route dr ON dr.route_key = fa.route_key
 WHERE fa.delay_minutes IS NOT NULL
 GROUP BY dr.route_short_name, dr.route_id,
          EXTRACT(HOUR FROM fa.actual_departure);
-
--- ── Query 1: Worst 10 routes by average delay ─────────────────────────────────
 SELECT
     route_short_name,
     route_id,
@@ -35,14 +26,11 @@ SELECT
     ROUND(SUM(trips_on_time)::NUMERIC / NULLIF(SUM(trips_observed),0) * 100, 1)
                                                                AS overall_otp_pct,
     ROUND(AVG(avg_delay_min), 2)                               AS avg_delay_min,
-    -- Rank within query using window function
     RANK() OVER (ORDER BY AVG(avg_delay_min) DESC)             AS delay_rank
 FROM v_otp_by_route_hour
 GROUP BY route_short_name, route_id
 ORDER BY avg_delay_min DESC
 LIMIT 10;
-
--- ── Query 2: OTP by hour bucket (peak vs off-peak) ────────────────────────────
 SELECT
     CASE
         WHEN hour_ist BETWEEN 7  AND 10 THEN 'Morning Peak (07-10)'
@@ -59,8 +47,6 @@ SELECT
 FROM v_otp_by_route_hour
 GROUP BY period
 ORDER BY avg_delay_min DESC;
-
--- ── Query 3: ROLLUP — OTP by route × day_of_week (subtotals included) ─────────
 SELECT
     dr.route_short_name,
     dd.day_name,

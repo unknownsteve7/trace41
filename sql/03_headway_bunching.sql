@@ -1,11 +1,3 @@
--- =============================================================================
--- sql/03_headway_bunching.sql
--- Headway distribution and bunching detection per route.
--- Demonstrates: LAG(), ROWS BETWEEN, percentile aggregates.
--- =============================================================================
-
--- ── Query 1: Headway between successive buses (LAG window function) ────────────
--- Shows ROWS BETWEEN applied to ordered bus arrivals per route per day.
 WITH ordered_buses AS (
     SELECT
         fa.trip_id,
@@ -14,7 +6,6 @@ WITH ordered_buses AS (
         dr.route_id,
         fa.date_id,
         fa.actual_departure,
-        -- LAG: previous bus on the same route that day
         LAG(fa.actual_departure) OVER (
             PARTITION BY fa.route_key, fa.date_id
             ORDER BY fa.actual_departure
@@ -49,21 +40,16 @@ headway_stats AS (
 SELECT *
 FROM headway_stats
 ORDER BY bunching_rate_pct DESC;
-
--- ── Query 2: Running average headway using ROWS BETWEEN ───────────────────────
--- Shows how headway evolves across consecutive buses on a route.
 SELECT
     fa.trip_id,
     dr.route_short_name,
     fa.actual_departure,
     fa.headway_min,
-    -- 3-bus rolling average headway
     ROUND(AVG(fa.headway_min) OVER (
         PARTITION BY fa.route_key, fa.date_id
         ORDER BY fa.actual_departure
         ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
     )::NUMERIC, 2)                                              AS rolling_3_avg_headway,
-    -- Cumulative min headway seen so far
     MIN(fa.headway_min) OVER (
         PARTITION BY fa.route_key, fa.date_id
         ORDER BY fa.actual_departure
@@ -74,8 +60,6 @@ FROM fact_trip_actual fa
 JOIN dim_route dr ON dr.route_key = fa.route_key
 WHERE fa.headway_min IS NOT NULL
 ORDER BY dr.route_short_name, fa.actual_departure;
-
--- ── Query 3: Bunching hotspots — worst routes by bunching rate ─────────────────
 SELECT
     dr.route_short_name,
     COUNT(*)                                                     AS total_trips,

@@ -1,11 +1,8 @@
 name: TRACE Automated DataOps Pipeline
 
 on:
-  # 1. Scheduled run every 1 hour (offset at minute 25)
   schedule:
     - cron: '25 * * * *'
-  
-  # 2. Manual trigger from GitHub UI anytime
   workflow_dispatch:
     inputs:
       reason:
@@ -29,11 +26,8 @@ env:
   OTD_VEHICLE_POSITIONS_URL: 'https://otd.delhi.gov.in/api/realtime/VehiclePositions.pb'
 
 jobs:
-  # ============================================================================
-  # Stage 1: Passenger Grievances (Vercel API -> Supabase Cloud DB)
-  # ============================================================================
   ingest-grievances:
-    name: 📱 Ingest QR Grievances (Vercel -> Supabase)
+    name: Ingest QR Grievances (Vercel -> Supabase)
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -55,11 +49,8 @@ jobs:
         run: |
           python etl/ingest_feedback_api.py
 
-  # ============================================================================
-  # Stage 2: Real-Time Bus Telemetry (Delhi OTD API -> Silver -> Gold Star Schema)
-  # ============================================================================
   ingest-telemetry:
-    name: 🚌 Ingest GTFS-RT Telemetry (OTD -> Silver -> Gold)
+    name: Ingest GTFS-RT Telemetry (OTD -> Silver -> Gold)
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -89,11 +80,8 @@ jobs:
         run: |
           python etl/load_facts.py actual
 
-  # ============================================================================
-  # Stage 3: Publish Data Marts (Supabase -> Power BI CSVs & Git Push)
-  # ============================================================================
   publish-powerbi:
-    name: 📊 Export Power BI Data Marts & Git Sync
+    name: Export Power BI Data Marts & Git Sync
     needs: [ingest-grievances, ingest-telemetry]
     runs-on: ubuntu-latest
     timeout-minutes: 10
