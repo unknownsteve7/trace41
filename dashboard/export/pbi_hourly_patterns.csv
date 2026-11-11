@@ -1,8 +1,8 @@
 hour_ist,trips_observed,otp_pct,avg_delay_min,avg_headway_min,scheduled_trips,transit_period
-0,221,47.1,66.02,1.01,408,Night / Early Morning Off-Peak
-1,4,0.0,555.2,1.95,78,Night / Early Morning Off-Peak
-2,8,0.0,303.91,0.21,60,Night / Early Morning Off-Peak
-3,11,0.0,171.84,0.42,67,Night / Early Morning Off-Peak
+0,285,36.5,93.1,0.9,408,Night / Early Morning Off-Peak
+1,51,0.0,150.87,0.76,78,Night / Early Morning Off-Peak
+2,79,0.0,86.59,0.6,60,Night / Early Morning Off-Peak
+3,102,25.5,29.91,0.81,67,Night / Early Morning Off-Peak
 4,195,0.0,68.69,1.66,633,Night / Early Morning Off-Peak
 5,1127,19.3,40.96,0.52,2272,Night / Early Morning Off-Peak
 6,332,0.0,226.21,0.43,3485,Night / Early Morning Off-Peak
@@ -11,15 +11,15 @@ hour_ist,trips_observed,otp_pct,avg_delay_min,avg_headway_min,scheduled_trips,tr
 9,3896,8.4,55.04,0.6,3427,Morning Peak (07-10)
 10,3701,0.0,65.48,2.01,3258,Morning Peak (07-10)
 11,7191,42.8,21.62,5.75,3469,Mid-Day Base (11-15)
-12,5054,70.3,9.85,14.11,3686,Mid-Day Base (11-15)
-13,3234,39.4,27.36,25.73,3992,Mid-Day Base (11-15)
-14,4391,64.9,25.58,21.33,4083,Mid-Day Base (11-15)
-15,4876,53.9,30.0,18.76,4238,Mid-Day Base (11-15)
+12,5054,70.3,9.65,14.11,3686,Mid-Day Base (11-15)
+13,3235,39.4,26.84,25.73,3992,Mid-Day Base (11-15)
+14,4392,64.9,25.42,21.33,4083,Mid-Day Base (11-15)
+15,4876,53.9,29.57,18.76,4238,Mid-Day Base (11-15)
 16,3332,21.9,25.55,3.81,3981,Evening Peak (16-19)
-17,251,0.0,148.37,0.31,3462,Evening Peak (16-19)
-18,555,0.0,133.06,0.33,3289,Evening Peak (16-19)
+17,251,0.0,144.23,0.3,3462,Evening Peak (16-19)
+18,555,0.0,127.43,0.33,3289,Evening Peak (16-19)
 19,1337,0.0,70.19,0.25,3302,Evening Peak (16-19)
-20,2365,17.3,5.07,0.31,3529,Night / Early Morning Off-Peak
-21,126,0.0,-873.16,0.34,3083,Night / Early Morning Off-Peak
-22,150,0.0,-1290.32,0.61,2230,Night / Early Morning Off-Peak
-23,251,0.0,-1376.4,0.67,1222,Night / Early Morning Off-Peak
+20,2368,17.3,-0.66,0.32,3529,Night / Early Morning Off-Peak
+21,156,0.0,-911.97,0.33,3083,Night / Early Morning Off-Peak
+22,189,0.0,-1256.6,0.62,2230,Night / Early Morning Off-Peak
+23,305,0.0,-1344.36,0.6,1222,Night / Early Morning Off-Peak
