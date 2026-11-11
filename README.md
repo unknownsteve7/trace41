@@ -261,8 +261,8 @@ The business intelligence layer reads pre-aggregated data marts published automa
 | **Page 1** | **Executive Fleet Reliability** | Network OTP %, Average Fleet Delay, Total Trips Operated | DTC / DIMTS Board of Directors |
 | **Page 2** | **Hourly Congestion & Temporal Trends** | Peak Hour (AM/PM) Delay Spikes, Hourly Trip Drop-off | Transit Schedulers & Schedulers |
 | **Page 3** | **Bunching Hotspots & Headway Variance** | Headway Dispersion, Platooned Route Ranking, Bottlenecks | Central Traffic Dispatchers |
-| **Page 4** | **Passenger Grievance Deep-Dive** | Complaint Volume by Route, Severity Index, AC/HVAC Failure Rate | Public Relations & Quality Officers |
-| **Page 5** | **Downstream ML Predictor & Feature Weight** | Actual vs Predicted Delay Scatter, Feature Importance Bars | Operations Research & Data Science Teams |
+| **Page 4** | **Geographic Corridor Map** | Spatial Transit Network, Stop Coordinates (`lat`, `lon`), Radial Transit Hubs (Azadpur, Kashmere Gate, Anand Vihar) | Route Network & Infrastructure Planners |
+| **Page 5** | **Commuter Grievances & Operational ML** | Grievance Category Breakdown (AC/HVAC Failure, Late Arrival), Severity Distribution, Feature Importance & Delay Forecasts | Depot Managers, Quality Officers & Analytics Teams |
 
 ---
 
