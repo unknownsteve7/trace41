@@ -1,188 +1,388 @@
 # TRACE: Transit Analytics & Reliability Correlation Engine
-**An End-to-End Reliability, Root-Cause & Feedback Analytics System for Delhi's Bus Network**
+**An Automated DataOps, Reliability Analytics & Commuter Feedback Correlation System for Delhi Bus Transit**
 
-[![Database](https://img.shields.io/badge/PostgreSQL-16-blue.svg)](https://www.postgresql.org/)
-[![Python](https://img.shields.io/badge/Python-3.11-green.svg)](https://www.python.org/)
-[![Architecture](https://img.shields.io/badge/Architecture-Medallion-orange.svg)]()
-[![Status](https://img.shields.io/badge/Status-Complete-brightgreen.svg)]()
-
-TRACE is a comprehensive transit data analytics platform that measures, explains, and predicts the operational reliability of public bus transit in Delhi using official Open Transit Data (OTD) feeds, static General Transit Feed Specification (GTFS), Open-Meteo weather intelligence, and passenger feedback.
+[![Python 3.11](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
+[![Database](https://img.shields.io/badge/Database-Supabase%20PostgreSQL-3ECF8E.svg)](https://supabase.com/)
+[![CI/CD Pipeline](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF.svg)](https://github.com/unknownsteve7/trace41/actions)
+[![Microservice](https://img.shields.io/badge/Microservice-FastAPI%20on%20Vercel-black.svg)](https://trace-feedback.vercel.app)
+[![Architecture](https://img.shields.io/badge/Architecture-Medallion%20Star%20Schema-orange.svg)]()
+[![BI Reporting](https://img.shields.io/badge/Dashboard-Power%20BI-F2C811.svg)]()
 
 ---
 
-## 🏛️ System Architecture
+## 1. Executive Summary & Problem Context
 
-TRACE implements a **Medallion Architecture (Bronze -> Silver -> Gold)** backed by PostgreSQL and Parquet:
+Delhi operates one of the world's largest urban surface transit networks through the **Delhi Transport Corporation (DTC)** and the **Delhi Integrated Multi-Modal Transit System (DIMTS)**, serving over **4.2 million commuters daily across 7,000+ buses**. Despite extensive route coverage, commuters face severe daily operational failures:
+
+1. **The Bus Bunching & Delay Cascade Crisis**:
+   Timetables promise buses every 10 minutes. In practice, initial congestion delays a lead bus ($B_1$), which accumulates larger boarding queues at each stop. Subsequent buses ($B_2, B_3$) encounter empty stops, catch up, and "bunch" into multi-bus platoons. Commuters endure 35-45 minute gaps followed by two or three empty buses arriving at once.
+2. **The Disconnected Commuter**:
+   When buses skip stops, when HVAC/air-conditioning fails during 45 deg C summer peaks, or when severe overcrowding occurs, passengers have no frictionless channel to report incidents. Traditional customer grievance portals require mobile app installations, user registration, and bureaucratic multi-day turnaround times.
+3. **The "Blind Operator" Gap**:
+   Transit management operates in administrative silos. Telemetry engineers track GPS coordinates on fleet maps, while customer support logs public complaints weeks later. Operators lack an automated mechanism to cross-reference passenger grievances with ground-truth vehicle telemetry to determine root causes.
+
+**TRACE** addresses this systemic gap by establishing an automated, end-to-end data platform that pairs real-time vehicle telemetry with zero-barrier QR passenger feedback to calculate schedule adherence, isolate bus bunching corridors, and correlate service failures with citizen experience.
+
+---
+
+## 2. Comparative Analysis: Existing Systems vs. TRACE
+
+| Feature / Dimension | Consumer Apps (Google Maps, One Delhi) | Fleet Management Systems (FMS) | Government Helplines (CPGRAMS, DTC Toll-Free) | TRACE Platform |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Audience** | Commuters | Internal Depot Dispatchers | Bureaucratic Record Keepers | Transit Planners, Depot Managers, Commuters |
+| **Data Standard** | Proprietary / Static GTFS | Proprietary Telematics | Unstructured Text Registers | Open GTFS & GTFS-RT (Protobuf) |
+| **Bunching Analytics** | None | Raw GPS breadcrumbs | None | Algorithmic Headway Variance ($< 120$s) |
+| **Feedback Channel** | Static reviews / Star ratings | None | Complex forms, login required | Instant QR scan (Zero-login, pre-filled metadata) |
+| **Ground-Truth Correlation** | None | None | Post-mortem manual inspection | Automated spatial-temporal telemetry join |
+| **DataOps Automation** | Closed vendor cloud | On-premise / Licensed VM | Manual batch reports | Hourly GitHub Actions CI/CD DAG |
+
+---
+
+## 3. The Four Fundamental Pillars
+
+TRACE is architected around four core functional pillars:
+
+```
++-----------------------------------------------------------------------------------+
+|                            TRACE CORE ARCHITECTURE                                |
++-----------------------------------------------------------------------------------+
+         |                                                 |
++--------v-------------------------+             +---------v------------------------+
+|            PILLAR 1              |             |             PILLAR 2             |
+|     Real-Time Operational        |             |       Algorithmic Headway        |
+|          Reliability             |             |     & Bunching Detection         |
+|  Continuous tracking of live     |             |  Sequential window lag analysis  |
+|  positions vs static timetables  |             |  quantifying headway variance    |
+|  to compute On-Time Perf. (OTP). |             |  and bunching (< 2.0 min).       |
++----------------┬-----------------+             +------------------┬---------------+
+                 |                                                  |
+                 +------------------------+-------------------------+
+                                          |
++-----------------------------------------v-----------------------------------------+
+|                                     PILLAR 4                                      |
+|                            UNIFIED CORRELATION ENGINE                             |
+|  Merges passenger grievance records with ground-truth vehicle telemetry to        |
+|  diagnose operational root causes behind commuter dissatisfaction.                |
++-----------------------------------------^-----------------------------------------+
+                                          |
+                                  +-------+--------+
+                                  |    PILLAR 3    |
+                                  |  Zero-Barrier  |
+                                  | QR Feedback    |
+                                  |  10-second web |
+                                  |  form, zero app|
+                                  |  installation  |
+                                  +----------------+
+```
+
+* **Pillar 1: Real-Time Operational Reliability**: Measures departure deviations against static timetable schedules to calculate On-Time Performance (OTP within $[-5, +5]$ minutes).
+* **Pillar 2: Algorithmic Headway Variance & Bunching Detection**: Uses SQL `LAG()` window functions over chronological departures to calculate gap minutes and classify bunching events (headway $< 2.0$ minutes).
+* **Pillar 3: Zero-Barrier Commuter Grievance Loop**: Physical QR stickers placed in bus cabins pass `vehicle_id` and `route_id` as URL parameters to a lightweight HTML form on Vercel, allowing riders to submit verified complaints in seconds.
+* **Pillar 4: Unified Ground-Truth Correlation Engine**: Evaluates citizen feedback against actual bus movements at that exact timestamp and corridor, confirming operational failures.
+
+---
+
+## 4. End-to-End System Architecture
+
+TRACE implements a **Medallion Architecture (Bronze -> Silver -> Gold)**, orchestrated entirely through automated CI/CD workflows and serverless microservices:
 
 ```mermaid
 flowchart TD
-    subgraph Sources["Data Sources"]
-        S1["Delhi OTD Portal<br/>GTFS-RT VehiclePositions.pb<br/>(Every 30s)"]
-        S2["Static GTFS Feed<br/>(routes, trips, stops,<br/>stop_times, shapes)"]
-        S3["Open-Meteo API<br/>(Daily Precipitation,<br/>Wind, Temperature)"]
-        S4["Simulated Passenger Layer<br/>(QR-Based Complaints)"]
+    subgraph S["Data Sources"]
+        S1["Delhi OTD Portal<br/>VehiclePositions.pb (GTFS-RT)"]
+        S2["Static GTFS Archive<br/>routes, trips, stops, stop_times"]
+        S3["Commuter Feedback Form<br/>FastAPI Microservice on Vercel"]
+        S4["Open-Meteo API<br/>Daily Precipitation & Temperature"]
     end
 
-    subgraph Bronze["Bronze Layer (Raw Storage)"]
-        B1["Raw .pb Snapshots<br/>data/raw/YYYY-MM-DD/*.pb<br/>(Immutable)"]
+    subgraph B["Bronze Layer (Raw Storage)"]
+        B1["Raw .pb Snapshots<br/>data/raw/YYYY-MM-DD/*.pb"]
+        B2["Raw JSON Grievances<br/>data/bronze/complaints/*.json"]
     end
 
-    subgraph Silver["Silver Layer (Cleaned Parquet)"]
-        SL1["Cleaned Vehicle Positions<br/>data/silver/realtime/*.parquet<br/>(Deduped, Stale Flagged)"]
-        SL2["Static GTFS Parquet<br/>data/silver/static/*.parquet<br/>(24:00+ Normalized)"]
-        Q["Quarantine Buffer<br/>data/quarantine/*.parquet<br/>(Out-of-Delhi Coordinates)"]
+    subgraph SL["Silver Layer (Cleaned Parquet)"]
+        SL1["Realtime Parquet<br/>data/silver/realtime/*.parquet<br/>(Deduped, Stale Flagged)"]
+        SL2["Static Parquet<br/>data/silver/static/*.parquet"]
+        SL3["Complaints Parquet<br/>data/silver/complaints.parquet"]
+        Q["Quarantine Parquet<br/>data/quarantine/*.parquet<br/>(Out-of-Delhi Coordinates)"]
     end
 
-    subgraph Gold["Gold Layer - PostgreSQL Star Schema"]
+    subgraph G["Gold Layer (Supabase PostgreSQL Star Schema)"]
         D1[("dim_route<br/>(SCD Type 2)")]
         D2[("dim_stop")]
-        D3[("dim_date<br/>(Holidays & Calendar)")]
-        F1[("fact_trip_actual")]
-        F2[("fact_trip_schedule")]
-        F3[("fact_weather_daily")]
-        F4[("fact_complaints")]
+        D3[("dim_date<br/>(Calendar & Holidays)")]
+        F1[("fact_trip_actual<br/>(Delays & Bunching)")]
+        F2[("fact_trip_schedule<br/>(Timetable Stops)")]
+        F3[("fact_complaints<br/>(Passenger Grievances)")]
+        F4[("fact_weather_daily<br/>(Precipitation)")]
     end
 
-    subgraph Analytics["Analytics & Consumption"]
-        A1["Advanced SQL<br/>(Recursive CTEs, Window Frames,<br/>Anti-joins, Materialized Views)"]
-        A2["Statistical Testing<br/>(Spearman Correlation,<br/>Mann-Whitney U)"]
-        A3["ML Delay Prediction<br/>(RandomForest Classifier & Regressor)"]
-        A4["Power BI Dashboards<br/>(5 Interactive Pages)"]
+    subgraph DO["Automated DataOps & Consumption"]
+        O1["GitHub Actions Runner<br/>(cron: 25 * * * *)"]
+        O2["Data Marts Generator<br/>dashboard/export/*.csv"]
+        O3["Power BI Service / Desktop<br/>(5 Interactive Executive Pages)"]
     end
 
     S1 --> B1 --> SL1
+    B1 -. Coordinates outside Delhi .-> Q
+    S3 --> B2 --> SL3
     S2 --> SL2
-    B1 -. Outliers .-> Q
     SL1 --> F1
     SL2 --> D1 & D2 & F2
-    S3 --> F3
+    SL3 --> F3
     S4 --> F4
-    F1 & F2 & F3 & F4 --> A1 & A2 & A3 & A4
+    O1 --> S1 & S3
+    F1 & F2 & F3 & F4 --> O2 --> O3
 ```
 
 ---
 
-## 📊 Database Schema (Gold Layer)
+## 5. Gold Layer Star Schema Design
 
-The analytical data warehouse is structured as a normalized **Star Schema** in PostgreSQL (`trace_db`):
+The relational data warehouse is modeled in **PostgreSQL (Supabase Cloud)** using a dimensional Star Schema:
 
-| Table | Classification | Records | Description |
-|---|---|---|---|
-| `dim_date` | Dimension | **365** | 2026 Calendar spine with Indian national holiday flags & day-of-week attributes |
-| `dim_route` | Dimension (SCD2) | **2,554** | Delhi bus routes, terminal descriptions, agency metadata |
-| `dim_stop` | Dimension | **6,812** | Bus stops with GPS coordinates (latitude / longitude) |
-| `fact_trip_schedule` | Fact | **2,385,381** | Timetable stop sequence and scheduled arrival/departure times |
-| `fact_trip_actual` | Fact | **4,792+** | Actual observed bus runs, delay minutes, headway gaps, and bunching flags |
-| `fact_weather_daily` | Fact | **93** | Daily maximum/minimum temperature, precipitation (mm), and wind velocity |
-| `fact_complaints` | Fact | **200** | Simulated passenger grievance records linked to routes and stops |
+```
+                    +--------------------+
+                    |      dim_date      |
+                    +--------------------+
+                    | PK  date_id        |
+                    |     full_date      |
+                    |     is_weekend     |
+                    |     is_holiday     |
+                    +---------+----------+
+                              |
+       +----------------------+----------------------+
+       |                      |                      |
++------v---------------+ +----v----------------+ +----v---------------+
+|  fact_trip_schedule  | |   fact_trip_actual   | |  fact_complaints   |
++----------------------+ +----------------------+ +----------------------+
+| PK  id               | | PK  id               | | PK  id               |
+| FK  date_id          | | FK  date_id          | | FK  date_id          |
+| FK  route_key        | | FK  route_key        | | FK  route_key        |
+| FK  stop_key         | |     scheduled_dep    | |     complaint_time   |
+|     stop_sequence    | |     actual_dep       | |     complaint_type   |
+|     arrival_time     | |     delay_minutes    | |     severity         |
+|     departure_time   | |     is_on_time       | |     description      |
++------+---------------+ |     headway_min      | |     sentiment_score  |
+       |                 |     is_bunched       | +----------^-----------+
+       |                 |     ping_count       |            |
+       |                 +----------+-----------+            |
+       |                            |                        |
++------v----------+                 +------------+-----------+
+|    dim_stop     |                              |
++-----------------+                    +---------v----------+
+| PK  stop_key    |                    |     dim_route      |
+|     stop_id     |                    +--------------------+
+|     stop_name   |                    | PK  route_key      |
+|     lat, lon    |                    |     route_id       |
++-----------------+                    |     route_short_name
+                                       |     is_current     |
+                                       +--------------------+
+```
 
----
+### Table Definitions & Grain
 
-## 🔍 Key Discoveries & Technical Insights
-
-1. **Delhi Dispatching Dynamics**:
-   - The live GTFS-RT feed publishes trips formatted as `trip_id = <route_id>_<actual_hour>_<actual_minute>`.
-   - **98.3% Route Coverage**: Real-time vehicle dispatches match the static route network.
-   - **86.8% Timetable Correlation**: 86.8% of active trips depart within $\pm 15$ minutes of an officially scheduled timetable departure on that corridor.
-
-2. **Bus Bunching Phenomenon**:
-   - Spearman rank correlation ($\rho = -0.4812, p < 0.0001$) proves a strong, statistically significant inverse relationship between headway and bunching rate: as headway drops below 2 minutes, buses rapidly bunch together into platoons.
-
-3. **Machine Learning Delay Modeling**:
-   - **RandomForest Classification Accuracy**: **83.7%** for predicting on-time service ($\le 5$ min delay).
-   - **RandomForest Regression MAE**: **39.23 minutes** (outperforming the mean baseline of 44.12 min).
-   - **Key Predictors**: Route Profile (68.8%), Headway Interval (24.7%), and GPS Ping Frequency (6.5%).
-
----
-
-## 💻 SQL Portfolio & Query Design
-
-The project demonstrates mastery of advanced relational SQL techniques:
-
-- **Window Functions & Frame Clauses** (`sql/02_otp_by_route.sql`, `sql/03_headway_bunching.sql`):
-  Uses `LAG()` to calculate headway between consecutive buses, and `ROWS BETWEEN 2 PRECEDING AND CURRENT ROW` for rolling 3-bus average headway.
-- **NULL-Safe Anti-Joins** (`sql/05_ghost_trips.sql`):
-  Demonstrates why naive `NOT IN` fails when subqueries contain NULLs (the NULL trap), and implements production-grade `NOT EXISTS` anti-joins to identify scheduled "ghost trips" that failed to dispatch.
-- **Recursive CTEs** (`sql/04_delay_cascade.sql`):
-  Walks the stop sequence ($1 \to 2 \to \dots \to n$) using `WITH RECURSIVE` to model cumulative delay propagation along the route corridor.
-- **Materialized Views & Stored Procedures** (`sql/07_views_matview.sql`, `sql/08_stored_proc.sql`):
-  Cached views (`mv_hourly_headway`) refreshed via automated PL/pgSQL procedures (`sp_load_realtime_day`).
-- **Index Tuning & Query Plans** (`sql/09_indexes.sql`):
-  `EXPLAIN ANALYZE` comparisons showing index scan speedups on large fact table joins.
-
----
-
-## 📱 QR-Based Passenger Feedback System
-
-To bridge the gap between telemetry data and rider perception:
-- Branded, high-resolution QR cards are pre-generated in `qr/`:
-  - `qr/sample_qr_bus_interior.png`: Vehicle DL1PC9421, Route 784 (774DOWN).
-  - `qr/sample_qr_bus_stop.png`: Azadpur Terminal (DEL0234).
-- Scanning automatically opens a pre-filled grievance form carrying vehicle and stop context.
-- Grievance categories (Late Arrival, Overcrowding, No Show, Driver Behavior) populate `fact_complaints` for correlation with measured delay.
+1. **`dim_date`**: Calendar spine covering operating dates with flags for Indian gazetted holidays and weekends.
+2. **`dim_route`**: Slowly Changing Dimension (SCD Type 2) tracking transit routes, base numbers, and directionality (`UP`/`DOWN`).
+3. **`dim_stop`**: Master repository of 6,800+ Delhi transit stops with WGS84 geographic coordinates.
+4. **`fact_trip_actual`**: Granular record of every observed vehicle trip containing scheduled vs actual departure times, delay duration, headway gap, and bunching flag.
+5. **`fact_trip_schedule`**: Scheduled timetable trips across all designated route stops.
+6. **`fact_complaints`**: Commuter grievances mapped to route, date, rating, severity, sentiment score, and feedback category.
+7. **`fact_weather_daily`**: Meteorological features including daily precipitation (mm), maximum temperature, and wind speed.
 
 ---
 
-## 📈 Power BI Dashboard Architecture
+## 6. Automated DataOps Workflow (GitHub Actions)
 
-Pre-aggregated CSV files are exported in `dashboard/export/` for instant import:
-1. `pbi_fleet_kpis.csv`: Fleet-wide On-Time Performance (OTP) and delay rank across 1,262 routes.
-2. `pbi_hourly_patterns.csv`: Delay and reliability trends across peak vs off-peak hours.
-3. `pbi_bunching_hotspots.csv`: Worst bunched routes and headway variances.
-4. `pbi_complaints.csv`: Category distribution and route complaint counts.
-5. `pbi_ml_metrics.csv`: Feature importances and accuracy benchmarks.
-6. `pbi_route_map_stops.csv`: Stop coordinates for Delhi route map visualization.
+TRACE operates autonomously using a scheduled **GitHub Actions DataOps Pipeline** ([`.github/workflows/trace_dataops.yml`](.github/workflows/trace_dataops.yml)).
 
-Refer to [`docs/powerbi_setup_guide.md`](docs/powerbi_setup_guide.md) for step-by-step 5-page dashboard construction instructions.
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       AUTOMATED DATAOPS DAG EXECUTION                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                       │
+                Trigger: cron: '25 * * * *' (Hourly)
+                     or manual workflow_dispatch
+                                       │
+        +------------------------------+------------------------------+
+        |                                                             |
++-------v-----------------------------+     +-------------------------v-------------------+
+|  STAGE 1: Ingest QR Grievances      |     |  STAGE 2: Ingest GTFS-RT Telemetry          |
+|  - Calls Vercel Feedback REST API   |     |  - Polls Delhi OTD VehiclePositions.pb      |
+|  - Applies incremental watermark    |     |  - Decodes Protobuf into Silver Parquet     |
+|  - Regex route resolution           |     |  - Derives delays & bunching (< 2.0 min)    |
+|  - Inserts into fact_complaints     |     |  - Loads into fact_trip_actual              |
++-------+-----------------------------+     +-------------------------+-------------------+
+        |                                                             |
+        +------------------------------+------------------------------+
+                                       │
++--------------------------------------v--------------------------------------+
+|  STAGE 3: Export Data Marts & Git Auto-Commit                               |
+|  - Queries Supabase Gold Schema                                             |
+|  - Exports updated CSV data marts in dashboard/export/                      |
+|  - Commits updated files with chore(dataops) [skip ci]                      |
+|  - Pushes commit to main branch for Power BI synchronization                |
++-----------------------------------------------------------------------------+
+```
+
+* **Incremental Watermark**: A persistent `watermark.txt` tracks the last ingested complaint timestamp, preventing duplicate ingestion.
+* **Resilient Retry**: Real-time polling implements exponential backoff across 5 retries to handle upstream OTD portal network spikes.
+* **Zero Infrastructure Cost**: Completely orchestrated on free-tier GitHub Actions and serverless cloud databases.
 
 ---
 
-## 🚀 Quickstart & Reproduction
+## 7. Advanced SQL Analytics Portfolio
 
-### 1. Environment Setup
+The platform leverages advanced PostgreSQL features to calculate operational KPIs across large datasets:
+
+* **Headway Dynamics & Bunching Detection** ([`sql/03_headway_bunching.sql`](sql/03_headway_bunching.sql)):
+  ```sql
+  LAG(fa.actual_departure) OVER (
+      PARTITION BY fa.route_key, fa.date_id
+      ORDER BY fa.actual_departure
+  ) AS prev_departure
+  ```
+  Calculates the exact elapsed minutes between consecutive buses on the same corridor.
+* **Delay Cascade Propagation** ([`sql/04_delay_cascade.sql`](sql/04_delay_cascade.sql)):
+  Utilizes `WITH RECURSIVE` to trace how a minor 3-minute delay at stop 1 expands into a 25-minute delay by stop 20 due to compounding passenger queues.
+* **Ghost Trip Detection** ([`sql/05_ghost_trips.sql`](sql/05_ghost_trips.sql)):
+  Implements NULL-safe `NOT EXISTS` anti-joins between `fact_trip_schedule` and `fact_trip_actual` to isolate scheduled timetable runs that never physically operated.
+* **Rolling Reliability Tracking** ([`sql/06_rolling_otp.sql`](sql/06_rolling_otp.sql)):
+  Uses window frame specifications (`ROWS BETWEEN 2 PRECEDING AND CURRENT ROW`) to smooth out isolated spikes and track continuous 3-trip rolling On-Time Performance.
+
+---
+
+## 8. Power BI Executive Dashboard Architecture
+
+The business intelligence layer reads pre-aggregated data marts published automatically to `dashboard/export/`:
+
+| Page | Dashboard View | Target Metric | Primary Stakeholder |
+| :---: | :--- | :--- | :--- |
+| **Page 1** | **Executive Fleet Reliability** | Network OTP %, Average Fleet Delay, Total Trips Operated | DTC / DIMTS Board of Directors |
+| **Page 2** | **Hourly Congestion & Temporal Trends** | Peak Hour (AM/PM) Delay Spikes, Hourly Trip Drop-off | Transit Schedulers & Schedulers |
+| **Page 3** | **Bunching Hotspots & Headway Variance** | Headway Dispersion, Platooned Route Ranking, Bottlenecks | Central Traffic Dispatchers |
+| **Page 4** | **Passenger Grievance Deep-Dive** | Complaint Volume by Route, Severity Index, AC/HVAC Failure Rate | Public Relations & Quality Officers |
+| **Page 5** | **Downstream ML Predictor & Feature Weight** | Actual vs Predicted Delay Scatter, Feature Importance Bars | Operations Research & Data Science Teams |
+
+---
+
+## 9. Repository Structure
+
+```text
+trace41/
+├── .github/
+│   └── workflows/
+│       └── trace_dataops.yml         # Automated GitHub Actions DataOps pipeline
+├── collector/
+│   ├── download_static_gtfs.py       # Static GTFS zip collector
+│   ├── inspect_static_gtfs.py        # Static feed validator
+│   ├── poll_gtfs_rt.py               # Live OTD GTFS-RT protobuf polling daemon
+│   └── two_poll_test.py              # Telemetry difference verification
+├── etl/
+│   ├── static_to_silver.py           # Schedule ETL -> Silver Parquet
+│   ├── realtime_to_silver.py         # Telemetry ETL -> Silver Parquet
+│   ├── load_dimensions.py            # Supabase Dimension tables loader
+│   ├── load_facts.py                 # Fact tables loader (OTP, delays, bunching)
+│   └── ingest_feedback_api.py        # Vercel Feedback API -> Gold fact_complaints
+├── sql/
+│   ├── 01_create_schema.sql          # PostgreSQL DDL for Star Schema
+│   ├── 02_otp_by_route.sql           # Route-level on-time performance queries
+│   ├── 03_headway_bunching.sql       # LAG() headway & bunching detection
+│   ├── 04_delay_cascade.sql          # Recursive CTE delay propagation
+│   ├── 05_ghost_trips.sql            # NOT EXISTS anti-join ghost trip detection
+│   ├── 06_rolling_otp.sql            # Moving-window rolling OTP analysis
+│   ├── 07_views_matview.sql          # Materialized views for fast dashboards
+│   ├── 08_stored_proc.sql            # Automated SQL loading stored procedures
+│   └── 09_indexes.sql                # B-tree and partial index tuning
+├── dashboard/
+│   ├── export_for_powerbi.py         # Data mart extractor (CSVs & heartbeat)
+│   ├── trace_dashboard.pbix          # Completed Power BI Desktop dashboard
+│   └── export/                       # Exported CSVs synced to GitHub
+├── qr/
+│   ├── feedback_form.html            # Frictionless commuter complaint web UI
+│   ├── generate_qr_samples.py        # QR code image generator
+│   └── sample_qr_bus_interior.png    # Commuter interior test QR code
+├── notebooks/
+│   ├── stats_analysis.py             # Spearman correlation & statistical testing
+│   ├── delay_prediction.py          # Proof-of-concept ML Random Forest model
+│   └── simulate_complaints.py        # Synthetic test grievance generator
+├── docs/                             # Academic UML diagrams (.puml, .mmd) & guides
+├── requirements.txt                  # Python dependencies
+└── README.md                         # Project documentation
+```
+
+---
+
+## 10. Installation & Local Execution
+
+### Prerequisites
+* Python 3.11+
+* PostgreSQL 16+ or Supabase Cloud instance
+* Git
+
+### Step 1: Clone & Install Dependencies
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/trace.git
-cd trace
-
-# Install Python dependencies
+git clone https://github.com/unknownsteve7/trace41.git
+cd trace41
 pip install -r requirements.txt
-
-# Configure environment variables
-cp .env.example .env
-# Open .env and add your OTD_API_KEY
 ```
 
-### 2. Start PostgreSQL Container
-```bash
-docker compose up -d db
+### Step 2: Configure Environment Variables
+Create a `.env` file in the project root:
+```ini
+PG_HOST=aws-0-ap-northeast-1.pooler.supabase.com
+PG_PORT=5432
+PG_DATABASE=postgres
+PG_USER=your_postgres_user
+PG_PASSWORD=your_postgres_password
+PG_SSLMODE=require
+
+OTD_API_KEY=your_delhi_otd_api_key
+OTD_VEHICLE_POSITIONS_URL=https://otd.delhi.gov.in/api/realtime/VehiclePositions.pb
+FEEDBACK_API_URL=https://trace-feedback.vercel.app
+FEEDBACK_ADMIN_KEY=your_admin_secret_key
 ```
 
-### 3. Run Pipeline & Analytics
+### Step 3: Run Data Pipeline Locally
 ```bash
-# 1. Run Static GTFS ETL (creates Silver Parquet files)
+# 1. Download and parse static timetable feed
+python collector/download_static_gtfs.py
 python etl/static_to_silver.py
 
-# 2. Process collected Realtime .pb files
-python etl/realtime_to_silver.py
-
-# 3. Apply Gold Schema & Load Tables
-docker exec -i trace_db psql -U postgres -d trace_db < sql/01_create_schema.sql
+# 2. Ingest static dimensions into database
 python etl/load_dimensions.py
-python etl/load_facts.py all
 
-# 4. Run Statistical Hypothesis Tests & ML Models
-python notebooks/stats_analysis.py
-python notebooks/delay_prediction.py
+# 3. Poll real-time bus telemetry and process
+python collector/poll_gtfs_rt.py --count 1 --force
+python etl/realtime_to_silver.py
+python etl/load_facts.py actual
 
-# 5. Export Datasets for Power BI
+# 4. Ingest QR grievances from Vercel microservice
+python etl/ingest_feedback_api.py
+
+# 5. Export fresh Data Marts for Power BI
 python dashboard/export_for_powerbi.py
 ```
 
 ---
 
-## 🛡️ Limitations & Methodology Notes
+## 11. Future Scope & Operational Roadmap
 
-1. **Pilot Dataset Scope**: Real-time vehicle positions represent a multi-day empirical snapshot rather than a multi-year seasonal census.
-2. **Dynamic Dispatch Logic**: While DTC buses match static routes at 98.3%, Delhi operates dynamic depot dispatching rather than fixed-second adherence.
-3. **Synthetic Grievance Data**: The QR complaint dataset is synthetically generated for architectural demonstration and should not be cited as real passenger grievance records.
+1. **Automated Dispatch Interventions (Dynamic Headway Holding)**:
+   Integrate real-time alerts into depot dispatcher consoles to hold trailing bunched buses at major stops for 2-3 minutes, re-establishing target headway intervals.
+2. **Natural Language Processing (NLP) for Grievance Clustering**:
+   Apply topic modeling (BERTopic / LDA) and sentiment analysis to passenger comment text to automatically cluster recurring maintenance complaints without manual tagging.
+3. **Multi-Channel Push Notifications**:
+   Connect pipeline alerts to Telegram and WhatsApp bot endpoints to notify route managers when bunching exceeds 20% on arterial corridors.
+4. **Power BI Row-Level Security (RLS)**:
+   Configure depot-wise access roles allowing individual depot managers to inspect only their assigned fleet while executive directors view city-wide metrics.
+
+---
+
+## 12. Authors & Academic Acknowledgments
+
+* **Project**: TRACE (Transit Analytics & Reliability Correlation Engine)
+* **Institution**: Rajiv Gandhi University of Knowledge Technologies (RGUKT) - Ongole Campus
+* **Department**: Computer Science & Engineering
+* **Guide**: Mr. Beerala Murali, Assistant Professor, Department of CSE
+* **Team**: S. Nagamallikarjuna, V. Jagadeesh, P. Ajay, B. Vamsi Krishna
