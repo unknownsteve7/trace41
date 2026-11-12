@@ -313,60 +313,8 @@ trace41/
 
 ---
 
-## 10. Installation & Local Execution
 
-### Prerequisites
-* Python 3.11+
-* PostgreSQL 16+ or Supabase Cloud instance
-* Git
-
-### Step 1: Clone & Install Dependencies
-```bash
-git clone https://github.com/unknownsteve7/trace41.git
-cd trace41
-pip install -r requirements.txt
-```
-
-### Step 2: Configure Environment Variables
-Create a `.env` file in the project root:
-```ini
-PG_HOST=aws-0-ap-northeast-1.pooler.supabase.com
-PG_PORT=5432
-PG_DATABASE=postgres
-PG_USER=your_postgres_user
-PG_PASSWORD=your_postgres_password
-PG_SSLMODE=require
-
-OTD_API_KEY=your_delhi_otd_api_key
-OTD_VEHICLE_POSITIONS_URL=https://otd.delhi.gov.in/api/realtime/VehiclePositions.pb
-FEEDBACK_API_URL=https://trace-feedback.vercel.app
-FEEDBACK_ADMIN_KEY=your_admin_secret_key
-```
-
-### Step 3: Run Data Pipeline Locally
-```bash
-# 1. Download and parse static timetable feed
-python collector/download_static_gtfs.py
-python etl/static_to_silver.py
-
-# 2. Ingest static dimensions into database
-python etl/load_dimensions.py
-
-# 3. Poll real-time bus telemetry and process
-python collector/poll_gtfs_rt.py --count 1 --force
-python etl/realtime_to_silver.py
-python etl/load_facts.py actual
-
-# 4. Ingest QR grievances from Vercel microservice
-python etl/ingest_feedback_api.py
-
-# 5. Export fresh Data Marts for Power BI
-python dashboard/export_for_powerbi.py
-```
-
----
-
-## 11. Future Scope & Operational Roadmap
+## 10. Future Scope & Operational Roadmap
 
 1. **Automated Dispatch Interventions (Dynamic Headway Holding)**:
    Integrate real-time alerts into depot dispatcher consoles to hold trailing bunched buses at major stops for 2-3 minutes, re-establishing target headway intervals.
@@ -385,4 +333,4 @@ python dashboard/export_for_powerbi.py
 * **Institution**: Rajiv Gandhi University of Knowledge Technologies (RGUKT) - Ongole Campus
 * **Department**: Computer Science & Engineering
 * **Guide**: Mr. Beerala Murali, Assistant Professor, Department of CSE
-* **Team**: S. Nagamallikarjuna, V. Jagadeesh, P. Ajay, B. Vamsi Krishna
+* **Team**: M. Naga Mohan, M. Ashini, K. Sravanthi
