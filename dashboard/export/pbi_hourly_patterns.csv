@@ -4,16 +4,16 @@ hour_ist,trips_observed,otp_pct,avg_delay_min,avg_headway_min,scheduled_trips,tr
 2,81,0.0,97.39,0.59,60,Night / Early Morning Off-Peak
 3,105,24.8,41.13,0.82,67,Night / Early Morning Off-Peak
 4,207,0.0,79.45,1.53,633,Night / Early Morning Off-Peak
-5,1286,16.8,62.07,0.45,2272,Night / Early Morning Off-Peak
-6,1037,0.0,166.6,0.27,3485,Night / Early Morning Off-Peak
-7,3106,0.0,101.29,0.23,4197,Morning Peak (07-10)
-8,5056,5.2,67.07,0.27,3871,Morning Peak (07-10)
-9,5366,6.1,66.98,0.5,3427,Morning Peak (07-10)
-10,6557,0.0,55.14,1.24,3258,Morning Peak (07-10)
-11,8535,41.8,27.38,4.97,3469,Mid-Day Base (11-15)
-12,6741,52.5,21.65,11.31,3686,Mid-Day Base (11-15)
-13,5268,34.2,20.96,18.32,3992,Mid-Day Base (11-15)
-14,4393,64.9,25.34,21.33,4083,Mid-Day Base (11-15)
+5,1286,16.8,62.1,0.45,2272,Night / Early Morning Off-Peak
+6,1037,0.0,166.74,0.28,3485,Night / Early Morning Off-Peak
+7,3107,0.0,101.49,0.23,4197,Morning Peak (07-10)
+8,5057,5.2,67.17,0.27,3871,Morning Peak (07-10)
+9,5367,6.1,67.11,0.5,3427,Morning Peak (07-10)
+10,6558,0.0,55.37,1.24,3258,Morning Peak (07-10)
+11,8575,41.6,28.6,4.96,3469,Mid-Day Base (11-15)
+12,6819,51.9,24.93,11.26,3686,Mid-Day Base (11-15)
+13,6715,31.0,22.39,15.3,3992,Mid-Day Base (11-15)
+14,4439,64.5,24.95,21.17,4083,Mid-Day Base (11-15)
 15,4876,53.9,29.57,18.76,4238,Mid-Day Base (11-15)
 16,3332,21.9,25.32,3.81,3981,Evening Peak (16-19)
 17,251,0.0,144.23,0.3,3462,Evening Peak (16-19)
