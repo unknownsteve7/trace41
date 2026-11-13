@@ -1,25 +1,25 @@
 hour_ist,trips_observed,otp_pct,avg_delay_min,avg_headway_min,scheduled_trips,transit_period
-0,405,25.7,92.09,0.8,408,Night / Early Morning Off-Peak
-1,188,26.1,56.27,0.94,78,Night / Early Morning Off-Peak
-2,81,0.0,97.39,0.59,60,Night / Early Morning Off-Peak
-3,105,24.8,41.13,0.82,67,Night / Early Morning Off-Peak
-4,207,0.0,79.45,1.53,633,Night / Early Morning Off-Peak
-5,1286,16.8,62.1,0.45,2272,Night / Early Morning Off-Peak
-6,1037,0.0,166.74,0.28,3485,Night / Early Morning Off-Peak
-7,3107,0.0,101.56,0.23,4197,Morning Peak (07-10)
+0,412,25.2,99.16,0.75,408,Night / Early Morning Off-Peak
+1,192,25.5,64.97,0.99,78,Night / Early Morning Off-Peak
+2,84,0.0,103.28,0.56,60,Night / Early Morning Off-Peak
+3,112,23.2,50.11,0.79,67,Night / Early Morning Off-Peak
+4,275,0.0,89.44,1.14,633,Night / Early Morning Off-Peak
+5,2246,9.5,64.22,0.41,2272,Night / Early Morning Off-Peak
+6,2956,13.1,69.34,0.31,3485,Night / Early Morning Off-Peak
+7,3123,0.0,100.93,0.23,4197,Morning Peak (07-10)
 8,5058,5.2,67.26,0.27,3871,Morning Peak (07-10)
 9,5367,6.1,67.11,0.5,3427,Morning Peak (07-10)
 10,6558,0.0,55.4,1.24,3258,Morning Peak (07-10)
 11,8578,41.6,28.69,4.96,3469,Mid-Day Base (11-15)
 12,6831,51.8,25.52,11.22,3686,Mid-Day Base (11-15)
-13,6782,30.6,24.88,15.1,3992,Mid-Day Base (11-15)
+13,6782,30.6,24.93,15.1,3992,Mid-Day Base (11-15)
 14,4811,59.4,33.8,19.81,4083,Mid-Day Base (11-15)
-15,6109,43.0,40.29,15.61,4238,Mid-Day Base (11-15)
+15,6109,43.0,40.19,15.62,4238,Mid-Day Base (11-15)
 16,6345,20.6,24.96,2.21,3981,Evening Peak (16-19)
-17,322,6.8,110.06,0.31,3462,Evening Peak (16-19)
-18,557,0.0,124.48,0.33,3289,Evening Peak (16-19)
-19,1347,0.0,62.28,0.26,3302,Evening Peak (16-19)
-20,2399,17.0,-14.22,0.32,3529,Night / Early Morning Off-Peak
-21,242,0.0,-993.12,0.29,3083,Night / Early Morning Off-Peak
-22,316,0.0,-1239.07,0.61,2230,Night / Early Morning Off-Peak
-23,427,0.0,-1323.0,0.55,1222,Night / Early Morning Off-Peak
+17,323,6.8,107.71,0.31,3462,Evening Peak (16-19)
+18,558,0.0,122.97,0.33,3289,Evening Peak (16-19)
+19,1349,0.0,61.3,0.26,3302,Evening Peak (16-19)
+20,2404,17.0,-15.66,0.32,3529,Night / Early Morning Off-Peak
+21,250,0.0,-982.5,0.3,3083,Night / Early Morning Off-Peak
+22,326,0.0,-1224.36,0.61,2230,Night / Early Morning Off-Peak
+23,430,0.0,-1315.89,0.54,1222,Night / Early Morning Off-Peak
